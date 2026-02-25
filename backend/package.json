@@ -13,10 +13,12 @@
   "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.97.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "fast-xml-parser": "^5.3.7",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",

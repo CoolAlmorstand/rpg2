@@ -10,9 +10,9 @@ const supabase = createClient(
 const fileBuffer = fs.readFileSync("./src/supabase/test/test.png") 
 
 
-async function uploadTest(){
+export async function uploadTest(fileBuffer: Buffer){
   try {
-    const { error, data } = await supabase.storage.from("Maps").upload("test.png", fileBuffer, {
+    const { error, data } = await supabase.storage.from("Maps").upload("test1.zip", fileBuffer, {
       contentType: "png"
     })
     console.log(error)
@@ -21,6 +21,5 @@ async function uploadTest(){
   } 
 }
 
-uploadTest()
 
 
