@@ -1,25 +1,30 @@
 import * as PIXI from "pixi.js"
 import type { IScreen } from "../../interfaces/IScreen";
 
-import bookCoverImage from "../../assets/ui-sprites/UI_TravelBook_BookCover01a.png"
-
+import loadBookPanel from "./book-panel";
 
 export class MainMenuSceen implements IScreen {
-  displayContainer: PIXI.Container = new PIXI.Container() 
+  displayContainer: PIXI.Container = new PIXI.Container({
+    layout: {
+      width: "100%",
+      height: "100%",
+      flexDirection: "column",
+      justifyContent: "flex-start",
+      alignItems: "center"
+    }
+  }) 
   on: PIXI.EventEmitter = new PIXI.EventEmitter()
   constructor() {
     this.load()
   }
 
   async load() {
-    const loadedBookCoverImage = await PIXI.Assets.load(bookCoverImage)
-    const bookCoverSprite = new PIXI.Sprite(loadedBookCoverImage)
-    bookCoverSprite.anchor.set(0.5, 0)
-    this.displayContainer.addChild(bookCoverSprite)
+    await this.construckBookPanel() 
     this.on.emit("screen-loaded")
-  }
-
-  centerHorizontally(){
-    this.displayContainer.x = window.innerWidth / 2
   } 
+  async construckBookPanel(){
+    const bookPanel = await loadBookPanel()
+    this.displayContainer.addChild(bookPanel)
+    this.displayContainer.layout?.forceUpdate()
+  }
 }

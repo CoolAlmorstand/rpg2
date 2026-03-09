@@ -4,11 +4,18 @@ import * as PIXI from "pixi.js"
 
 
 export class DisplayManager {
-  displayContainer: PIXI.Container = new PIXI.Container()
+  displayContainer: PIXI.Container = new PIXI.Container({
+    layout: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "center",
+      alignItems: "center"
+    }
+  })
   screens: Record<string, PIXI.Container> = {}
 
   constructor() {
-
+  
   }
 
   addScreen(screenId: string, screen: PIXI.Container ) {
