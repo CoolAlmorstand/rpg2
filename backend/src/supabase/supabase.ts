@@ -22,4 +22,10 @@ export async function uploadTest(fileBuffer: Buffer){
 }
 
 
+export async function getAvailableMaps() {
+  const { data, error } = await supabase.storage.from("Maps").list()
+  return data!.map((map) => map.name)
+}
+
+
 

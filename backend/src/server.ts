@@ -2,7 +2,7 @@
 
 
 import express, { Request, Response } from "express";
-import { uploadTest } from "./supabase/supabase.ts";
+import { uploadTest, getAvailableMaps } from "./supabase/supabase.ts";
 import "dotenv"
 import cors from "cors"
 import multer from "multer"
@@ -24,6 +24,12 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/upload-map", fileUpload.single("file"), (req, res) => {
   uploadTest(req.file.buffer)
   res.send("upload succesful")
+})
+
+
+app.get("/maps/get-available", async (req, res) => {
+  const availableMaps = await getAvailableMaps()
+  res.send(availableMaps)
 })
 
 
