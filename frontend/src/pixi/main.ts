@@ -1,6 +1,6 @@
 
 import "@pixi/layout"
-import { Application } from 'pixi.js'
+import { Application, Assets } from 'pixi.js'
 // import { Game } from './game/game'
 import { DisplayManager } from './display-manager/display-manger'
 import { MainMenuSceen } from './screens/main-menu/main-menu'

@@ -1,7 +1,6 @@
 import * as PIXI from "pixi.js"
 import type { IScreen } from "../../interfaces/IScreen";
-
-import loadBookPanel from "./book-panel";
+import { construckBookPanel } from "./book-panel/construck-book-panel";
 
 export class MainMenuSceen implements IScreen {
   displayContainer: PIXI.Container = new PIXI.Container({
@@ -10,7 +9,8 @@ export class MainMenuSceen implements IScreen {
       height: "100%",
       flexDirection: "column",
       justifyContent: "flex-start",
-      alignItems: "center"
+      alignItems: "center",
+      paddingTop: 10
     }
   }) 
   on: PIXI.EventEmitter = new PIXI.EventEmitter()
@@ -19,12 +19,9 @@ export class MainMenuSceen implements IScreen {
   }
 
   async load() {
-    await this.construckBookPanel() 
+    const bookPanel = await construckBookPanel()
+    this.displayContainer.addChild(bookPanel)
     this.on.emit("screen-loaded")
   } 
-  async construckBookPanel(){
-    const bookPanel = await loadBookPanel()
-    this.displayContainer.addChild(bookPanel)
-    this.displayContainer.layout?.forceUpdate()
-  }
+  
 }
