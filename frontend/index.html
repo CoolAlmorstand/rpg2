@@ -1,26 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-    <style>
-      html, body {
-        padding: 0;
-        margin: 0;
-      }
-      .full-screen {
-        height: 100dvh;
-        width: 100dvw;
-        padding: 0;
-        display: block;
-        background-color: red;
-      }
-    </style>
-  </head>  
-  <body>
-    <div class="full-screen" id="app"></div>
-    <!-- <script type="module" src="/src/main.ts"></script> -->
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Micro+5&display=swap" rel="stylesheet">  
+  <title>Menu</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      padding-top: 10px;
+      gap: 10;
+      background-color: #fdf8d4;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      image-rendering: pixelated;
+    }
+    .book-panel {
+      border-image-source: url("/ui-sprites/UI_TravelBook_BookCover01a.png");
+      border-image-slice: 12 12 12 12 fill;
+      border-image-width: 12px;
+      border-image-repeat: stretch;
+      border-width: 12px;
+      border-style: solid;
+      width: 80%;
+      min-height: 200px;
+      display: flex;
+      box-sizing: border-box;
+      flex-direction: row;
+    }
+    .description-text {
+      font-family:"Micro 5" ;
+      font-size: 18px;
+    }
+    .game-title {
+      font-family:"Micro 5" ;
+      font-size: 42px;
+      color: #9B7653;
+    }
+    .book-page-left {
+      background-image: url("/ui-sprites/UI_TravelBook_BookPageLeft01a.png") ;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 5px;
+      padding-top: 10px;
+      align-items: center;
+      width: 50%;
+      height: 100%;
+    }
+    .book-page-right {
+      background-image: url("/ui-sprites/UI_TravelBook_BookPageRight01a.png") ;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 5px;
+      padding: 7px;
+      padding-top: 10px;
+      align-items: center;
+      width: 50%;
+      height: 100%;
+    }
+    .menu-buttons {
+      font-family: "Micro 5";
+      width: 50%;
+      display: flex;
+      font-size: 20px;
+      flex-direction: row;
+      justify-content: center;
+      gap: 3px;
+      align-items: center;
+      background: transparent;
+      border: none;
+    }
+    .icon-image {
+      width: 8px;
+      height: 8px;
+    }
+  </style>
+</head>
+<body>
+  <p class="game-title"> TEREBITHIA </p>  
+  <div class="book-panel">
+    <div class="book-page-left">
+      <button class="menu-buttons"> 
+        Play
+        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconArrow01a.png"/>
+      </button>
+      <button class="menu-buttons"> 
+        Settings 
+        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconGear01a.png"/>
+      </button>  
+       <button class="menu-buttons"> 
+        Multiplayer
+        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconRestart01a.png"/>
+      </button>  
+    </div>
+      
+    <div class="book-page-right">
+      <p class="description-text">  Welcome to the best game ever made by the best most talendted dumfuck youve ever meet </p>    
+    </div>
+  </div>   
+</body>
 </html>
