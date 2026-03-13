@@ -3,25 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script defer src="/src/page-scripts/index.ts"> </script>
+  <link rel="stylesheet" href="/src/app.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Micro+5&display=swap" rel="stylesheet">  
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">  
   <title>Menu</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      padding-top: 10px;
-      gap: 10;
-      background-color: #fdf8d4;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      image-rendering: pixelated;
+    html, body { 
+      image-rendering: pixelated; 
+      padding:0 ;
+      margin: 0;
     }
     .book-panel {
       border-image-source: url("/ui-sprites/UI_TravelBook_BookCover01a.png");
@@ -30,87 +23,78 @@
       border-image-repeat: stretch;
       border-width: 12px;
       border-style: solid;
-      width: 80%;
-      min-height: 200px;
-      display: flex;
-      box-sizing: border-box;
-      flex-direction: row;
-    }
-    .description-text {
-      font-family:"Micro 5" ;
-      font-size: 18px;
-    }
-    .game-title {
-      font-family:"Micro 5" ;
-      font-size: 42px;
-      color: #9B7653;
     }
     .book-page-left {
-      background-image: url("/ui-sprites/UI_TravelBook_BookPageLeft01a.png") ;
+      background-image: url("/ui-sprites/UI_TravelBook_BookPageLeft01a.png");
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 5px;
-      padding-top: 10px;
-      align-items: center;
-      width: 50%;
-      height: 100%;
     }
     .book-page-right {
-      background-image: url("/ui-sprites/UI_TravelBook_BookPageRight01a.png") ;
+      background-image: url("/ui-sprites/UI_TravelBook_BookPageRight01a.png");
       background-size: 100% 100%;
       background-repeat: no-repeat;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 5px;
-      padding: 7px;
-      padding-top: 10px;
-      align-items: center;
-      width: 50%;
-      height: 100%;
     }
-    .menu-buttons {
-      font-family: "Micro 5";
-      width: 50%;
-      display: flex;
-      font-size: 20px;
-      flex-direction: row;
-      justify-content: center;
-      gap: 3px;
-      align-items: center;
-      background: transparent;
+    dialog {
+      width: 100dvw;
+      height: 100dvh;
+      max-width: 100dvw;
+      max-height: 100dvh;
+      background-color: transparent;
+      padding: 0;
       border: none;
     }
-    .icon-image {
-      width: 8px;
-      height: 8px;
+
+    dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    dialog:not([open]) {
+      display: none;
     }
   </style>
 </head>
-<body>
-  <p class="game-title"> TEREBITHIA </p>  
-  <div class="book-panel">
-    <div class="book-page-left">
-      <button class="menu-buttons"> 
+<body class="w-full h-full pt-2 gap-2 bg-[#fdf8d4] overflow-hidden flex flex-col justify-start items-center">
+
+  <p class="font-['Micro_5'] text-[42px] text-[#9B7653]">TEREBITHIA</p>
+
+  <div class="book-panel w-[90%] h-[200px] flex flex-row">
+
+    <div class="h-full book-page-left flex flex-col justify-center items-center gap-1 pb-3 w-1/2">
+      <button id="play-button" class="font-['Micro_5'] text-[28px] w-1/2 flex flex-row justify-center items-center gap-1 bg-transparent border-none">
         Play
-        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconArrow01a.png"/>
+        <img class="w-2 h-2" src="/ui-sprites/UI_TravelBook_IconArrow01a.png"/>
       </button>
-      <button class="menu-buttons"> 
-        Settings 
-        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconGear01a.png"/>
-      </button>  
-       <button class="menu-buttons"> 
+      <button class="font-['Micro_5'] text-[28px] w-1/2 flex flex-row justify-center items-center gap-1 bg-transparent border-none">
+        Settings
+        <img class="w-2 h-2" src="/ui-sprites/UI_TravelBook_IconGear01a.png"/>
+      </button>
+      <button id="multiplayer-button" class="font-['Micro_5'] text-[28px] w-1/2 flex flex-row justify-center items-center gap-1 bg-transparent border-none">
         Multiplayer
-        <img class="icon-image" src="/ui-sprites/UI_TravelBook_IconRestart01a.png"/>
-      </button>  
+        <img class="w-2 h-2" src="/ui-sprites/UI_TravelBook_IconRestart01a.png"/>
+      </button>
     </div>
-      
-    <div class="book-page-right">
-      <p class="description-text">  Welcome to the best game ever made by the best most talendted dumfuck youve ever meet </p>    
+
+    <div class="book-page-right flex flex-col justify-center items-center gap-1 box-border pb-2 px-2 pl-4 w-1/2 h-full">
+      <p class="font-['Micro_5'] text-[22px] leading-none">Welcome to the best game ever made by the best most talendted dumfuck youve ever met</p>
     </div>
-  </div>   
+
+  </div>
+
+  <dialog class="flex flex-row items-center justify-center" id="multiplayer-dialog">
+      <div class="flex flex-col gap-5 items-center box-border p-3 bg-[#fdf8d4] rounded-xl w-8/10 "> 
+        <p class="text-[#9B7653] text-3xl font-bold font-['Pixelify_Sans']"> Multiplayer </p>
+
+        <div class="w-full h-px bg-[#9B7653]"></div>
+
+        <div class="flex flex-col gap-5 items-center">
+          <button class="w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Create Game </button>
+
+          <div class="w-full h-px bg-[#9B7653]"></div>
+          <button class="w-40 border-1 border-[#9B7653] text-[#9B7653] py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Join Game </button>
+          <input placeholder="Enter Room Code" class="w-40 text-center outline-none px-2 py-2 text-[#9B7653] border-[#9B7653] border-1 font-['Pixelify_Sans'] rounded-md" type="text" />
+        </div>  
+      </div> 
+  </dialog>
+
 </body>
 </html>
