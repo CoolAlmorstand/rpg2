@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "nodemon --exec tsx src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,10 +18,13 @@
     "express": "^5.2.1",
     "fast-xml-parser": "^5.3.7",
     "jszip": "^3.10.1",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^25.3.0",
+    "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
