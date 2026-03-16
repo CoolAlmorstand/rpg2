@@ -1,4 +1,7 @@
 
+import { io } from "socket.io-client"
+
+
 const SERVERURL = import.meta.env.VITE_SERVER_URL
 
 const multiplayerButton = document.getElementById("multiplayer-button")
@@ -6,6 +9,9 @@ const multiplayerDialog = document.getElementById("multiplayer-dialog") as HTMLD
 const createGameButton = document.getElementById("create-game-button")
 const joinGameButton = document.getElementById("join-game-button")
 const roomCodeInputField = document.getElementById("room-code-input-field") as HTMLInputElement
+
+
+const socket = io(`${SERVERURL}/room`) 
 
 multiplayerButton.addEventListener("click", () => {
   console.log("clicked")
@@ -31,6 +37,10 @@ joinGameButton.addEventListener("click", async () => {
   })
 
   const data = await response.json()
-
+  
   console.log(data)
+  if(data.doesGameExist) {
+    console.log("true")
+    socket.emit("join-room", {roomId: "test"})
+  }
 })

@@ -13,8 +13,12 @@ export class RoomIoSocket implements IRoomSocket {
     this.roomManager = roomManager
 
     this.io = io.of("/room") 
-    this.io.on("connection", () => {
-
-    })
+    this.io.on("connection", (socket) => {
+      console.log(`client: ${socket.id} connected!`) 
+      socket.on("join-room", (data) => {
+        console.log("attempted to join")
+        console.log(data)
+      })
+    }) 
   } 
 }

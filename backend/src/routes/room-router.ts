@@ -1,32 +1,29 @@
 import express from "express";
 import { Router } from "express"
-import type { Request, Response } from "express"; 
-
-import { GameRoomManager } from "../game-room/game-room-manager"; 
+import { IRoomManager } from "../interfaces/IRoomManeger";
 
 const router = Router()
-const gameRoomMangeer = new GameRoomManager()
 
-router.post("/check-if-room-exist", express.text(), (req, res) => {
-  const roomId = req.body
-  if(gameRoomMangeer.checkIfRoomExist(roomId)) {
-    res.send({
-      doesGameExist: true
-    })
-  } else {
-    res.send({
-      doesGameExist: false
-    })
-  } 
-})
+export function initializeRoomRoutes(gameRoomManager: IRoomManager ) {
+  router.post("/check-if-room-exist", express.text(), (req, res) => {
+    const roomId = req.body
+    if(gameRoomManager.checkIfRoomExist(roomId)) {
+      res.send({
+        doesGameExist: true
+      })
+    } else {
+      res.send({
+        doesGameExist: true 
+      })
+    } 
+  })
 
 
 
-router.post("/create-game", express.json(), async(req, res) => {
-  const gameData = req.body
-  const gameRoomMangeer
-})
+  router.post("/create-game", express.json(), async(req, res) => {
+    const gameData = req.body
+  })
 
-export default router
-
+  return router
+}
 
