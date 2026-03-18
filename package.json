@@ -2,6 +2,8 @@
   "name": "terabithia",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "frontend",
+    "backend"
   ]
 }
