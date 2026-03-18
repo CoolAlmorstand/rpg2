@@ -1,7 +1,7 @@
 
 const maps = [
   {
-    title: "Desert Arena",
+    title: "Desert ARENA",
     description: "Open map with long sightlines.",
     image: "/maps/desert.jpg"
   },
@@ -21,7 +21,7 @@ const maps = [
 const selectMapDialog = document.getElementById("select-map-dialog") as HTMLDialogElement
 
 export function openSelectMapDialog() {
-  selectMapDialog.showModal()
+  selectMapDialog.showModal
   selectMapDialog.addEventListener("click", (event) => {
     if(event.target == selectMapDialog) {
       selectMapDialog.close()
