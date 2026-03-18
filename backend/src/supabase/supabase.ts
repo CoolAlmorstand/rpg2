@@ -1,31 +1,46 @@
 
 import { createClient } from "@supabase/supabase-js"
-import fs from "fs"
-
-const supabase = createClient(
-  "https://hlsdidxxakfbbsbryhdz.supabase.co",
-  "sb_secret_ls1n6lBObntyfB0dNEzayQ_PJsPU3be"
-)
-
-const fileBuffer = fs.readFileSync("./src/supabase/test/test.png") 
+import { ISupabaseManager } from "../interfaces/ISupabaseManager"
+import { IMapPreview, IMapInfo } from "@terabithia/shared-types"
 
 
-export async function uploadTest(fileBuffer: Buffer){
-  try {
-    const { error, data } = await supabase.storage.from("Maps").upload("test1.zip", fileBuffer, {
-      contentType: "png"
-    })
-    console.log(error)
-  } catch (error) {
-    console.log(error)
-  } 
+export class SupabaseManager implements ISupabaseManager {
+  supabase = createClient(
+    "https://hlsdidxxakfbbsbryhdz.supabase.co",
+    "sb_secret_ls1n6lBObntyfB0dNEzayQ_PJsPU3be"
+  )
+
+  constructor() {
+
+  }
+
+  async getAvailableMaps() {
+    const availableMaps: IMapPreview[] = []
+    const {data, error} = await this.supabase.storage.from("Maps").list()
+    
+    if(error) {
+     throw new Error(error.message) 
+    }
+
+    data.forEach( async (mapFolder) => {
+      const mapId = mapFolder.name
+      const {data: infoBlob} = await this.supabase.storage.from("Maps").download(`${mapId}/info.json`)  
+      const infoRawText = await infoBlob!.text()
+      const info = JSON.parse(infoRawText) as IMapInfo
+      
+      const { data: imageBlob } = await this.supabase.storage.from("Maps").download(`${mapId}/thumbnail.png`)
+      const imageArrayBuffer = await imageBlob!.arrayBuffer()
+      const imageBase64String = Buffer.from(imageArrayBuffer).toString("base64")
+
+      const mapPreview: IMapPreview = {
+        title: info.title,
+        description: info.description,
+        thumbnail: imageBase64String
+      }
+
+      availableMaps.push(mapPreview)
+    }) 
+
+    return availableMaps 
+  }
 }
-
-
-export async function getAvailableMaps() {
-  const { data, error } = await supabase.storage.from("Maps").list()
-  return data!.map((map) => map.name)
-}
-
-
-

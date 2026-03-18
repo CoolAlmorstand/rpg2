@@ -13,12 +13,10 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager ) {
       })
     } else {
       res.send({
-        doesGameExist: true 
+        doesGameExist: false 
       })
-    } 
+    }
   })
-
-
 
   router.post("/create-game", express.json(), async(req, res) => {
     const gameData = req.body

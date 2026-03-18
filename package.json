@@ -1,5 +1,7 @@
 {
-	"devDependencies": {
-		"@types/cors": "^2.8.19"
-	}
+  "name": "terabithia",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
 }

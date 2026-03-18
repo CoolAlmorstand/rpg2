@@ -11,6 +11,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "tailwindcss": "^4.2.1",
+    "@terabithia/shared-types": "1.0.0",
     "typescript": "~5.9.3",
     "vite": "^7.3.1"
   },

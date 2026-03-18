@@ -1,7 +1,5 @@
-import type { IGame } from "../interfaces/IGame"
-import { IRoomManager } from "../interfaces/IRoomManeger"
-
-
+import type { IGame } from "../interfaces/IGame"  
+import type { IRoomManager } from "../interfaces/IRoomManeger"
 
 export class GameRoomManager implements IRoomManager {
   rooms: Record<string, IGame> = {}
