@@ -110,8 +110,8 @@
             </button> 
           </div>
 
-          <button id="select-map-button" class="w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Select Map </button>
-          <button id="create-room-button" class="w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Create Room </button>
+          <button id="select-map-button" class="active:scale-95 transition w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Select Map </button>
+          <button id="create-room-button" class="active:scale-95 transition w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Create Room </button>
 
         </div>  
       </div> 
@@ -130,20 +130,37 @@
   </dialog>
 
   <template id="map-card-template">
-    <div class="flex-shrink-0 w-full max-w-sm mx-auto bg-zinc-900 rounded-2xl overflow-hidden shadow-lg">
+    <div class="flex-shrink-0 w-full max-w-sm mx-auto bg-[#ede5a8] rounded-2xl overflow-hidden">
       
       <img class="w-full h-40 object-cover" data-bind="image" />
 
       <div class="p-4 flex flex-col gap-2">
-        <h2 class="text-lg font-semibold text-white" data-bind="title"></h2>
-        <p class="text-sm text-zinc-400" data-bind="description"></p>
+          <h2 class="text-lg font-['Pixelify_Sans'] font-semibold text-[#9B7653]" data-bind="title"></h2>
+        <p class="text-sm font-['Pixelify_Sans'] text-black" data-bind="description"></p>
 
-        <button class="mt-3 w-full py-2 rounded-xl bg-blue-600 text-white active:scale-95 transition"
+        <button class="mt-3 w-full py-2 text-2xl font-['Micro_5'] rounded-md bg-[#9B7653] text-white active:scale-95 transition"
                 data-action="select">
           Select
         </button>
       </div>
 
+    </div>
+  </template>
+
+  <template id="fetching-maps-template">
+    <div class="flex flex-col items-center gap-3 px-9 py-7 border-[3px] w-fit"
+         style="background:#fdf8d4; border-color:#9B7653; box-shadow:4px 4px 0px #9B7653;">
+      <img
+        class="w-12 h-12 animate-spin"
+        src="/ui-sprites/Untitled133_20260319181527.png"
+        alt="Loading"
+      />
+      <span class="text-lg tracking-wide" style="font-family:'Pixelify Sans',monospace; color:#9B7653;">
+        Fetching Maps
+      </span>
+      <span class="text-sm tracking-widest opacity-70" style="font-family:'Micro 5',monospace; color:#9B7653;">
+        please wait...
+      </span>
     </div>
   </template>
 </body>

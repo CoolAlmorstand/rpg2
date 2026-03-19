@@ -22,7 +22,7 @@ export class SupabaseManager implements ISupabaseManager {
      throw new Error(error.message) 
     }
 
-    data.forEach( async (mapFolder) => {
+    for(const mapFolder of data ) {
       const mapId = mapFolder.name
       const {data: infoBlob} = await this.supabase.storage.from("Maps").download(`${mapId}/info.json`)  
       const infoRawText = await infoBlob!.text()
@@ -39,7 +39,7 @@ export class SupabaseManager implements ISupabaseManager {
       }
 
       availableMaps.push(mapPreview)
-    }) 
+    } 
 
     return availableMaps 
   }
