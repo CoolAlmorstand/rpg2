@@ -11,3 +11,8 @@ multiplayerButton.addEventListener("click", () => {
 })
 
 
+if(!sessionStorage.getItem("terabithia:account-details")) {
+  window.location.href = "/create-account.html"
+}
+
+

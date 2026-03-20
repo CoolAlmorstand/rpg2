@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module" defer src="/src/page-scripts/create-account/create-account.ts"> </script>
+  <link rel="stylesheet" href="/src/app.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Micro+5&display=swap" rel="stylesheet">  
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">  
+  <title>Menu</title>
+  <style>
+    html, body { 
+      image-rendering: pixelated; 
+      padding:0 ;
+      margin: 0;
+    } 
+  </style>
+  </head>
+  <body class="w-full h-full pt-2 gap-2 bg-[#fdf8d4] overflow-hidden flex flex-col justify-start items-center">
+
+    <p class="font-['Micro_5'] text-[42px] text-[#9B7653]">TEREBITHIA</p>
+
+    <div class="flex flex-row gap-0 w-[90%] max-w-sm">
+      <button id="login-tab-button" class="flex-1 py-2 font-['Pixelify_Sans'] font-bold text-white bg-[#9B7653] rounded-tl-md rounded-bl-md border border-[#9B7653]">Login</button>
+      <button id="signup-tab-button" class="flex-1 py-2 font-['Pixelify_Sans'] font-medium text-[#9B7653] bg-transparent border border-[#9B7653] rounded-tr-md rounded-br-md">Sign Up</button>
+    </div>
+
+    <div class="book-panel w-[90%] max-w-sm flex flex-col gap-4 p-6">
+
+      <!-- Login Form -->
+      <div id="login-form">
+        <p class="font-['Pixelify_Sans'] text-[#9B7653] text-xl font-bold mb-4">Welcome back</p>
+        <div class="flex flex-col gap-3">
+          <input id="login-username" type="text" placeholder="Username"
+            class="w-full outline-none px-3 py-2 text-[#9B7653] border border-[#9B7653] font-['Pixelify_Sans'] rounded-md bg-transparent placeholder:text-[#9B7653]/50" />
+          <input id="login-password" type="password" placeholder="Password"
+            class="w-full outline-none px-3 py-2 text-[#9B7653] border border-[#9B7653] font-['Pixelify_Sans'] rounded-md bg-transparent placeholder:text-[#9B7653]/50" />
+          <button id="login-button"
+            class="w-full bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium mt-1">Login</button>
+        </div>
+      </div>
+
+      <!-- Signup Form -->
+      <div id="signup-form" class="hidden">
+        <p class="font-['Pixelify_Sans'] text-[#9B7653] text-xl font-bold mb-4">Create account</p>
+        <div class="flex flex-col gap-3">
+          <input id="signup-username" type="text" placeholder="Username"
+            class="w-full outline-none px-3 py-2 text-[#9B7653] border border-[#9B7653] font-['Pixelify_Sans'] rounded-md bg-transparent placeholder:text-[#9B7653]/50" />
+          <input id="signup-password" type="password" placeholder="Password"
+            class="w-full outline-none px-3 py-2 text-[#9B7653] border border-[#9B7653] font-['Pixelify_Sans'] rounded-md bg-transparent placeholder:text-[#9B7653]/50" />
+          <input id="signup-confirm-password" type="password" placeholder="Confirm Password"
+            class="w-full outline-none px-3 py-2 text-[#9B7653] border border-[#9B7653] font-['Pixelify_Sans'] rounded-md bg-transparent placeholder:text-[#9B7653]/50" />
+          <button id="signup-button"
+            class="w-full bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium mt-1">Create Account</button>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
+

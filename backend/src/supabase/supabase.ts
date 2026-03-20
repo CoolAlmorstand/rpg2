@@ -1,8 +1,7 @@
 
 import { createClient } from "@supabase/supabase-js"
 import { ISupabaseManager } from "../interfaces/ISupabaseManager"
-import { IMapPreview, IMapInfo } from "@terabithia/shared-types"
-
+import { IMapPreview, IMapInfo, IAuthCreateAccountDetails } from "@terabithia/shared-types"
 
 export class SupabaseManager implements ISupabaseManager {
   supabase = createClient(
@@ -42,5 +41,33 @@ export class SupabaseManager implements ISupabaseManager {
     } 
 
     return availableMaps 
+  }
+
+  async createNewAccount(accountDetails: IAuthCreateAccountDetails) {
+    const { data, error } = await this.supabase.auth.signUp({
+      email: `${accountDetails.username}@terabithia.com`,
+      password: accountDetails.password
+    })
+
+    if(error) {
+      console.error(error.name)
+      return
+    }
+
+    console.log(data)
+  }
+
+  async accountLogin(accountDetails: IAuthCreateAccountDetails) {
+    const { data, error } = await this.supabase.auth.signInWithPassword({
+      email: `${accountDetails.username}@terabithia.com`,
+      password: accountDetails.password 
+    })
+
+    if(error) {
+      console.error(error.name)
+      return 
+    }
+
+    console.log(data)
   }
 }
