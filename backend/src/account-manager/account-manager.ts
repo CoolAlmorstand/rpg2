@@ -1,6 +1,7 @@
+import { response } from "express";
 import { IAccountManager } from "../interfaces/IAccountManager";
 import { ISupabaseManager } from "../interfaces/ISupabaseManager";
-import type { IAuthCreateAccountDetails } from "@terabithia/shared-types"
+import type { IAuthCreateAccountDetails, IAuthLoginAttemptResponse } from "@terabithia/shared-types"
 
 
 
@@ -11,11 +12,50 @@ export class AccountManager implements IAccountManager {
     this.supabase = supabase
   }
 
-  async createNewAccount(accountDetails: IAuthCreateAccountDetails) {
-    const response = await this.supabase.createNewAccount(accountDetails)     
+  async createNewAccount(accountDetails: IAuthCreateAccountDetails): Promise<IAuthLoginAttemptResponse> {
+    const dbResponse = await this.supabase.createNewAccount(accountDetails)
+    
+    if( dbResponse.error ) {
+      const response: IAuthLoginAttemptResponse = {
+        success: false,
+        error: {
+          reason: dbResponse.error.message
+        }
+      }
+
+      return response
+    } else {
+      const response: IAuthLoginAttemptResponse = {
+        success: true,
+        username: dbResponse.data.user!.user_metadata.username,
+        token: dbResponse.data.session!.access_token
+      }
+
+      return response
+    }
+
   }
 
-  async accountLogin(accountDetails: IAuthCreateAccountDetails): Promise<void> {
-    const response = await this.supabase.accountLogin(accountDetails)
+  async accountLogin(accountDetails: IAuthCreateAccountDetails): Promise<IAuthLoginAttemptResponse> {
+    const dbResponse = await this.supabase.accountLogin(accountDetails)
+
+    if( dbResponse.error ) {
+      const response: IAuthLoginAttemptResponse = {
+        success: false,
+        error: {
+          reason: dbResponse.error.message
+        }
+      }
+
+      return response
+    } else {
+      const response: IAuthLoginAttemptResponse = {
+        success: true,
+        username: dbResponse.data.user!.user_metadata.username,
+        token: dbResponse.data.session!.access_token
+      }
+
+      return response
+    }
   }
 }

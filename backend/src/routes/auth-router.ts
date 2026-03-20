@@ -8,9 +8,14 @@ export function initializeAuthRoutes(accountManager: IAccountManager) {
   router.post("/create-account", express.json(), async (req, res) => {
     const accountDetails: IAuthCreateAccountDetails = req.body 
 
-    accountManager.createNewAccount(accountDetails)
+    res.json(await accountManager.createNewAccount(accountDetails))
   })
   
+  router.post("/login-account", express.json(), async (req, res) => {
+    const accountDetails: IAuthCreateAccountDetails = req.body 
+
+    res.json(await accountManager.accountLogin(accountDetails))
+  })
   return router
 }
 

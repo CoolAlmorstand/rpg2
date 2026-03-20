@@ -44,30 +44,26 @@ export class SupabaseManager implements ISupabaseManager {
   }
 
   async createNewAccount(accountDetails: IAuthCreateAccountDetails) {
-    const { data, error } = await this.supabase.auth.signUp({
+    const response = await this.supabase.auth.signUp({
       email: `${accountDetails.username}@terabithia.com`,
-      password: accountDetails.password
+      password: accountDetails.password,
+      options: {
+        data: {
+          username: accountDetails.username
+        }
+      }
     })
 
-    if(error) {
-      console.error(error.name)
-      return
-    }
-
-    console.log(data)
+    return response
   }
 
   async accountLogin(accountDetails: IAuthCreateAccountDetails) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
+    const response = await this.supabase.auth.signInWithPassword({
       email: `${accountDetails.username}@terabithia.com`,
       password: accountDetails.password 
     })
 
-    if(error) {
-      console.error(error.name)
-      return 
-    }
-
-    console.log(data)
+    
+    return response
   }
 }

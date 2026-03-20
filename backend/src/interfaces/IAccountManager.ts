@@ -1,7 +1,7 @@
 
-import type {IAuthCreateAccountDetails} from "@terabithia/shared-types"
+import type {IAuthCreateAccountDetails, IAuthLoginAttemptResponse} from "@terabithia/shared-types" 
 
 export interface IAccountManager {
-  createNewAccount(accountDetails: IAuthCreateAccountDetails): Promise<void>;
-  accountLogin(accountDetails: IAuthCreateAccountDetails): Promise<void>;
+  createNewAccount(accountDetails: IAuthCreateAccountDetails): Promise<IAuthLoginAttemptResponse>;
+  accountLogin(accountDetails: IAuthCreateAccountDetails): Promise<IAuthLoginAttemptResponse>;
 }
