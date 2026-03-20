@@ -117,7 +117,7 @@ signupButton.addEventListener("click", async () => {
         username: autResponse.username
       })
     ) 
-
+    console.log("nssj")
     window.location.href = "/"
   }
 })
