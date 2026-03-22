@@ -1,9 +1,9 @@
 
 import { createClient } from "@supabase/supabase-js"
-import { ISupabaseManager } from "../interfaces/ISupabaseManager"
-import { IMapPreview, IMapInfo, IAuthCreateAccountDetails } from "@terabithia/shared-types"
+import { IDBManager } from "../interfaces/IDBManager"
+import { IMapPreview, IMapInfo, IUserCreateAccountRequest, IUserCreateAccountResponse } from "@terabithia/shared-types"
 
-export class SupabaseManager implements ISupabaseManager {
+export class SupabaseManager implements IDBManager {
   supabase = createClient(
     "https://hlsdidxxakfbbsbryhdz.supabase.co",
     "sb_secret_ls1n6lBObntyfB0dNEzayQ_PJsPU3be"
@@ -43,8 +43,8 @@ export class SupabaseManager implements ISupabaseManager {
     return availableMaps 
   }
 
-  async createNewAccount(accountDetails: IAuthCreateAccountDetails) {
-    const response = await this.supabase.auth.signUp({
+  async createNewAccount(accountDetails: IUserCreateAccountRequest): Promise<IUserCreateAccountResponse> {
+    const {error} = await this.supabase.auth.signUp({
       email: `${accountDetails.username}@terabithia.com`,
       password: accountDetails.password,
       options: {
@@ -54,16 +54,33 @@ export class SupabaseManager implements ISupabaseManager {
       }
     })
 
-    return response
-  }
-
-  async accountLogin(accountDetails: IAuthCreateAccountDetails) {
-    const response = await this.supabase.auth.signInWithPassword({
-      email: `${accountDetails.username}@terabithia.com`,
-      password: accountDetails.password 
-    })
-
-    
-    return response
-  }
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    } else {
+      return {
+        success: true
+      }
+    }
+  }  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -22,7 +22,5 @@ export class GameRoomManager implements IRoomManager {
   createNewRoom() {
     const roomId = crypto.randomUUID().replace(/-/g, '').slice(0, 6);
     this.rooms[roomId] = {testRoom: "data sample"}
-  } 
-
-
+  }
 }

@@ -2,13 +2,12 @@
 
 import { IMapPreview } from "@terabithia/shared-types";
 import { IMapManager } from "../interfaces/IMapManager.ts";
-import { ISupabaseManager } from "../interfaces/ISupabaseManager.ts";
-
+import type { IDBManager } from "../interfaces/IDBManager.ts";
 
 
 export class MapsManager implements IMapManager {
-  supabaseManager: ISupabaseManager;
-  constructor(supabaseManager: ISupabaseManager ) {
+  supabaseManager: IDBManager;
+  constructor(supabaseManager: IDBManager ) {
     this.supabaseManager = supabaseManager
   }
 
