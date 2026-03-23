@@ -15,6 +15,7 @@ export interface ISessionToken {
   resetExpireTimer(): void; 
 }
 
+
 export interface IAuthHandler {
   sessionTokens: Record<string, {username: string}>
   userLogin(credentials: IUserCreateAccountRequest): Promise<IUserLoginResponse>

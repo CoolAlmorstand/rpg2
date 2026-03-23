@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { IAuthCreateAccountDetails, IAuthLoginAttemptResponse } from "@terabithia/shared-types"
+  import type { IUserLoginRequest, IUserLoginResponse, IUserCreateAccountRequest, IUserCreateAccountResponse} from "@terabithia/shared-types"
+
   import Logo from "$lib/components/ui/Logo.svelte";
   import { goto } from "$app/navigation"
 
@@ -23,19 +24,20 @@
     if (!loginUsername) return alert("username is empty")
     if (!loginPassword) return alert("password is empty")
 
-    const accountDetails: IAuthCreateAccountDetails = {
+    const accountDetails: IUserCreateAccountRequest = {
       username: loginUsername,
       password: loginPassword
     }
     
     try {
-      const response = await fetch(`${SERVERURL}/auth/login-account`, {
+      const response = await fetch(`${SERVERURL}/user/login-account`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(accountDetails)
       })
 
-      const authResponse: IAuthLoginAttemptResponse = await response.json()
+      const authResponse: IUserLoginResponse = await response.json()
       console.log(authResponse)
 
       if (!authResponse.success) {
@@ -59,19 +61,19 @@
     if (signupPassword.length < 6) return alert("password must be at least 6 characters")
     if (signupPassword !== signupConfirmPassword) return alert("passwords did not match")
 
-    const accountDetails: IAuthCreateAccountDetails = {
+    const accountDetails: IUserCreateAccountRequest = {
       username: signupUsername,
       password: signupPassword
     }
     
     try {
-      const response = await fetch(`${SERVERURL}/auth/create-account`, {
+      const response = await fetch(`${SERVERURL}/user/create-account`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(accountDetails)
       })
 
-      const authResponse: IAuthLoginAttemptResponse = await response.json()
+      const authResponse: IUserCreateAccountResponse = await response.json()
       console.log(authResponse)
 
       if (!authResponse.success) {
@@ -79,11 +81,8 @@
         return
       }
 
-      sessionStorage.setItem("terabithia:account-details", JSON.stringify({
-        token: authResponse.token,
-        username: authResponse.username
-      }))
-      goto("/main-menu")
+      alert("successfully created your account please log in") 
+      tab = "signin" 
     } catch(error) {
       alert("something went wrong try again later")
     }

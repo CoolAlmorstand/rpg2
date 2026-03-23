@@ -25,6 +25,7 @@ export type IUserLoginRequest = {
 
 export type IUserLoginResponse = {
   success: true;
+  username: string;
   token: string;
 } | {
   success: false;

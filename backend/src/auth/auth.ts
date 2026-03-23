@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 export class SupabaseAuthHandler implements IAuthHandler {
 
   supabase: SupabaseClient;
-  sessionTokens: {}
+  sessionTokens: Record<string, ISessionToken> = {}
   constructor( supabase: SupabaseClient) {
     this.supabase = supabase
   }
@@ -22,7 +22,7 @@ export class SupabaseAuthHandler implements IAuthHandler {
   } 
 
   async userLogin(credentials: IUserCreateAccountRequest): Promise<IUserLoginResponse> {
-    const {error} = await this.supabase.auth.signInWithPassword({
+    const {data, error} = await this.supabase.auth.signInWithPassword({
       email: `${credentials.username}@terabithia.com`,
       password: credentials.password
     }) 
@@ -41,6 +41,7 @@ export class SupabaseAuthHandler implements IAuthHandler {
 
       return {
         success: true,
+        username: data.user.user_metadata.username,
         token: sessionToken.token
       }
     }

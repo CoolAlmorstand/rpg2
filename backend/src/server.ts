@@ -16,6 +16,8 @@ import { SupabaseManager } from "./supabase/supabase.ts";
 import { MapsManager } from "./maps-manager/maps-manager.ts";
 import { UserManager } from "./user-manager/user-manager.ts";
 import { SupabaseAuthHandler } from "./auth/auth.ts";
+import dotenv from "dotenv"
+dotenv.config()
 
 const PORT = process.env.PORT || 3000;
 
@@ -34,10 +36,15 @@ const mapRouter = initializeMapRoutes(mapsManager)
 const userRouter = initializeUserRoutes(userManager)
 
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "*" }));
+app.use(cors(
+  { 
+    origin: process.env.CLIENT_URL,
+    credentials: true
+  }
+));
 app.use("/rooms", roomRouter)
 app.use("/map", mapRouter)
-app.use("/auth", userRouter)
+app.use("/user", userRouter)
 
 const io = createSocketIOServer(httpServer) 
 const roomIoSocketManager = new RoomIoSocket(io, gameRoomManager)  

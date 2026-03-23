@@ -47,6 +47,7 @@
     }
     const response = await fetch(`${SERVERURL}/rooms/create-room`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json"
       },

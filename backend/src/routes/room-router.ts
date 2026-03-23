@@ -1,8 +1,11 @@
 import express from "express";
 import { Router } from "express"
 import { IRoomManager } from "../interfaces/IRoomManeger";
-import { IAccountManager } from "../interfaces/IAccountManager";
+import { IUserManager } from "../interfaces/IUserManager";
 import { ICreateRoomData } from "@terabithia/shared-types";
+
+import cookieParser from "cookie-parser"
+
 
 const router = Router()
 
@@ -20,10 +23,10 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager) {
     }
   })
 
-  router.post("/create-room", express.json(), async(req, res) => {
-    const gameData: ICreateRoomData = req.body
-    
-    console.log(gameData)
+  router.post("/create-room", cookieParser(), express.json(), async(req, res) => {
+
+    console.log(req.cookies["auth-token"])
+    const gameData: ICreateRoomData = req.body 
   })
 
   return router
