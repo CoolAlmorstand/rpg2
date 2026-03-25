@@ -1,10 +1,6 @@
-import { response } from "express";
-import type { IDBManager } from "../interfaces/IDBManager"; 
-import type {IUserLoginResponse, IUserLoginRequest, IUserCreateAccountRequest, IUserCreateAccountResponse} from "@terabithia/shared-types" 
-import type { IUserManager } from "../interfaces/IUserManager";
-import { IAuthHandler } from "../interfaces/IAuthHandler";
-
-
+import type { IDBManager } from "../interfaces/IDBManager.ts"
+import type { IUserCreateAccountRequest, IUserCreateAccountResponse, IUserLoginRequest, IUserLoginResponse, IUserManager } from "../interfaces/user/IUserManager.ts"
+import type { IAuthHandler } from "../interfaces/auth/IAuthHandler.ts"
 
 export class UserManager implements IUserManager {
   supabase: IDBManager 
@@ -25,11 +21,13 @@ export class UserManager implements IUserManager {
       }
     } else {
       return {
-        success: true
+        success: true,
       }
     }
   }
+  
   async accountLogin(credentials: IUserLoginRequest): Promise<IUserLoginResponse> {
-    return await this.authHandler.userLogin(credentials) 
+    return await this.authHandler.userLogin(credentials)
   }
-}
+} 
+  

@@ -1,12 +1,13 @@
 
 import { createClient } from "@supabase/supabase-js"
 import { IDBManager } from "../interfaces/IDBManager"
-import { IMapPreview, IMapInfo, IUserCreateAccountRequest, IUserCreateAccountResponse } from "@terabithia/shared-types"
+import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
+import { ICreateRoomData } from "@terabithia/shared-types";
 
 export class SupabaseManager implements IDBManager {
   supabase = createClient(
-    "https://hlsdidxxakfbbsbryhdz.supabase.co",
-    "sb_secret_ls1n6lBObntyfB0dNEzayQ_PJsPU3be"
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!  
   )
 
   constructor() {
@@ -42,8 +43,17 @@ export class SupabaseManager implements IDBManager {
 
     return availableMaps 
   }
+  
+  async getUserFromToken(token: string): Promise<string | undefined> {
+    const {data , error} = await this.supabase.auth.getUser(token) 
+    return data.user?.id 
+  }
 
-  async createNewAccount(accountDetails: IUserCreateAccountRequest): Promise<IUserCreateAccountResponse> {
+  async createRoom(createRoomData: ICreateRoomData) {
+    const { data, error } = await this.supabase.from("parties").insert({})
+  }
+
+  async createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse> {
     const {error} = await this.supabase.auth.signUp({
       email: `${accountDetails.username}@terabithia.com`,
       password: accountDetails.password,

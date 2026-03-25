@@ -1,16 +1,11 @@
 
 
-
-
-
-
-
-export type IUserCreateAccountRequest = {
+export type IApiUserCreateAccountRequest = {
   username: string;
   password: string;
 }
 
-export type IUserCreateAccountResponse = {
+export type IApiUserCreateAccountResponse = {
   success: true;
 } | {
   success: false;
@@ -18,15 +13,14 @@ export type IUserCreateAccountResponse = {
 }
 
 
-export type IUserLoginRequest = {
+export type IApiUserLoginRequest = {
   username: string;
   password: string;
 }
 
-export type IUserLoginResponse = {
+export type IApiUserLoginResponse = {
   success: true;
   username: string;
-  token: string;
 } | {
   success: false;
   error: {reason: string}

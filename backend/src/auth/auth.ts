@@ -1,9 +1,9 @@
 
-import { IUserCreateAccountRequest, IUserLoginResponse } from "@terabithia/shared-types";
-import { SessionToken } from "./session-token.ts";
-import type { IAuthHandler, ISessionToken } from "../interfaces/IAuthHandler.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { randomUUID } from "node:crypto";
+import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse } from "../interfaces/auth/IAuthHandler";
+import type { ISessionToken } from "../interfaces/auth/ISessionToken.ts";
+
+import { SessionToken } from "./session-token.ts"
 
 export class SupabaseAuthHandler implements IAuthHandler {
 
@@ -20,8 +20,8 @@ export class SupabaseAuthHandler implements IAuthHandler {
       return false
     }
   } 
-
-  async userLogin(credentials: IUserCreateAccountRequest): Promise<IUserLoginResponse> {
+  
+  async userLogin(credentials: IAuthUserLoginRequest): Promise<IAuthUserLoginResponse> {
     const {data, error} = await this.supabase.auth.signInWithPassword({
       email: `${credentials.username}@terabithia.com`,
       password: credentials.password
@@ -41,11 +41,11 @@ export class SupabaseAuthHandler implements IAuthHandler {
 
       return {
         success: true,
+        token: sessionToken.token,
         username: data.user.user_metadata.username,
-        token: sessionToken.token
       }
-    }
-  }
+    }   
+  } 
 
   tokenExpire(sessionToken: ISessionToken) {
     delete this.sessionTokens[sessionToken.token]
