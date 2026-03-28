@@ -1,13 +1,6 @@
 import { resolve } from "node:dns";
 import { ISessionToken } from "../interfaces/IAuthHandler";
 
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve => resolve(), ms))
-}
-
-
-
 export class SessionToken implements ISessionToken {
   totalLife: number;
   username: string;
@@ -15,11 +8,11 @@ export class SessionToken implements ISessionToken {
   token: string;
   private timer: NodeJS.Timeout | null;
 
-  constructor(totalLife: number, username: string) {
+  constructor(totalLife: number, username: string, token: string) {
     this.totalLife = totalLife
     this.remainingLife = totalLife
     this.username = username
-    this.token = crypto.randomUUID()
+    this.token = token
   }
 
   async startExpireTimer(callback: Function): Promise<void> {

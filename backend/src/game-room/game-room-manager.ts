@@ -1,5 +1,6 @@
 import type { IGame } from "../interfaces/IGame"  
 import type { IRoomManager } from "../interfaces/IRoomManeger"
+import type { ICreateGameData } from "@terabithia/shared-types"
 
 export class GameRoomManager implements IRoomManager {
   rooms: Record<string, IGame> = {}
@@ -19,8 +20,6 @@ export class GameRoomManager implements IRoomManager {
     return this.rooms[roomId]
   }
 
-  createNewRoom() {
-    const roomId = crypto.randomUUID().replace(/-/g, '').slice(0, 6);
-    this.rooms[roomId] = {testRoom: "data sample"}
+  createNewRoom(gameData: ICreateGameData) {
   }
 }

@@ -2,14 +2,39 @@ import type { IApiUserCreateAccountRequest, IApiUserCreateAccountResponse, IApiU
 import type { IUserLoginResponse, IUserCreateAccountResponse } from "../interfaces/user/IUserManager"
 import type { IUserManager } from "../interfaces/user/IUserManager";
 
-
 import express from "express"
 import { Router } from "express"
-import { error } from "node:console";
+import { IAuthHandler } from "../interfaces/auth/IAuthHandler";
 const router = Router()
 
+export function initializeUserRoutes(userManager: IUserManager, authHandler: IAuthHandler, ) {
 
-export function initializeUserRoutes(userManager: IUserManager) {
+  router.get("/refresh-session", async (req, res) => {
+    const token = req.cookies["refresh-token"]
+    const result = await authHandler.refreshToken(token)
+    
+    if(!result.success) {
+      res.status(401).send("invalid refresh token")
+      return
+    }
+    
+    res.cookie("access-token", result.accessToken, {
+      httpOnly: true,       
+      secure: process.env.NODE_ENV === "production",     
+      sameSite: 'strict', 
+      maxAge: 60 * 60 * 1000 
+    })
+
+    res.cookie("refresh-token", result.refreshToken, {
+      httpOnly: true,       
+      secure: process.env.NODE_ENV === "production",     
+      sameSite: 'strict', 
+      maxAge: 7 * 24 * 60 * 60 * 1000 
+    })
+
+    res.send(200)
+  })
+
   router.post("/create-account", express.json(), async (req, res) => {
     const accountDetails: IApiUserCreateAccountRequest = req.body 
     const response: IUserCreateAccountResponse = await userManager.createNewAccount(accountDetails)
@@ -21,17 +46,25 @@ export function initializeUserRoutes(userManager: IUserManager) {
     const loginResult: IUserLoginResponse = await userManager.accountLogin(accountDetails)
 
     if(loginResult.success) {
-      res.cookie("auth-token", loginResult.token, {
+      res.cookie("access-token", loginResult.accessToken, {
         httpOnly: true,       
         secure: process.env.NODE_ENV === "production",     
         sameSite: 'strict', 
-        maxAge: 7 * 24 * 60 * 60 * 1000 
+        maxAge: 60 * 60 * 1000 
       })
+
+      res.cookie("refresh-token", loginResult.refreshToken, {
+        httpOnly: true,       
+        secure: process.env.NODE_ENV === "production",     
+        sameSite: 'strict', 
+        maxAge: 60 * 60 * 1000 
+      })
+
       const response: IApiUserLoginResponse = {
         success: true,
         username: loginResult.username
       }
-      res.json(loginResult)
+      res.json(response)
     } else {
       const response: IApiUserLoginResponse = {
         success: false,

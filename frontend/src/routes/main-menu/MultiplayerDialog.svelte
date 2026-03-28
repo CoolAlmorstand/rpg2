@@ -3,10 +3,8 @@
 
 
 <script lang="ts">
-  import type { ICreatRoomData, ICreateRoomResponse } from "@terabithia/shared-types";
-  import type { ILocalAccountDetials } from "../../interfaces/localAccountDetails"
-  import { getLocalAccountDetails } from "$lib/account"
- 
+  import type { ICreateRoomData, ICreateRoomResponse } from "@terabithia/shared-types";
+  import { refreshToken } from "$lib/refresh-token";
   import { goto } from "$app/navigation"
 
   export function open() {
@@ -18,7 +16,8 @@
   }
 
   let dialogElement: HTMLDialogElement
- 
+  let createRoomName: string; 
+
   const SERVERURL = import.meta.env.VITE_SERVER_URL
 
 
@@ -30,21 +29,12 @@
 
   async function createGame() {
 
-    const accountDetails: ILocalAccountDetials = getLocalAccountDetails() 
-    
-    if(!accountDetails) {
-      const answer = confirm("youre not logged in do you wanna log in?")
-      if(answer) {
-        goto("/")
-      }
-      return
-    }
-    
-    const createRoomData: ICreatRoomData = {
-      owner: accountDetails.username,
-      authToken: accountDetails.authToken,
+    const createRoomData: ICreateRoomData = {
+      name: createRoomName,
+      pin: null,
       isPublic: false
     }
+    
     const response = await fetch(`${SERVERURL}/rooms/create-room`, {
       method: "POST",
       credentials: "include",
@@ -52,10 +42,21 @@
         "Content-Type": "application/json"
       },
       body: JSON.stringify(createRoomData)
-    }) 
+    })
+
+    if(response.status == 401) {
+      const refreshResult = await refreshToken()
+      console.log(refreshResult)
+      if(!refreshResult.success) {
+        alert("you are not logged in please log in ")
+        goto("/")
+      } else {
+        createGame()
+      }
+      return
+    }
 
     const responseData: ICreateRoomResponse = await response.json()
-
     console.log(responseData)
   }
 </script>
@@ -69,6 +70,8 @@
     <div class="w-full h-px bg-[#9B7653]"></div>
 
     <div class="flex flex-col gap-5 items-center">
+
+      <input bind:value={createRoomName} placeholder="Enter a name for the room" class="w-39 text-center outline-none px-2 py-2 text-[#9B7653] border-[#9B7653] border-1 font-['Pixelify_Sans'] rounded-md" type="text" />
       <button onclick={createGame} class="w-40 bg-[#9B7653] text-white py-2 px-3 rounded-md font-['Pixelify_Sans'] font-medium "> Create Game </button>
 
       <div class="w-full h-px bg-[#9B7653]"></div>

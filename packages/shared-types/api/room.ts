@@ -4,9 +4,7 @@
 
 export type ICreateRoomData = {
   pin: string | null;
-
-  //usernameOfOwner
-  owner: string;
+  name: string;
   isPublic: boolean;
 }
 

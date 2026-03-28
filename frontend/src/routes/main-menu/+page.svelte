@@ -6,6 +6,7 @@
   import Logo from "$lib/components/ui/Logo.svelte";
 
   let multiplayerDialogElement: MultiplayerDialog
+ 
 </script>
 
 

@@ -18,7 +18,8 @@ export type IUserLoginRequest = {
 
 export type IUserLoginResponse = {
   success: true;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   username: string;
 } | {
   success: false;

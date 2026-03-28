@@ -6,6 +6,7 @@ import express from "express"
 import { createServer } from "http";
 
   
+import cookieParser from "cookie-parser"
 import { GameRoomManager } from "./game-room/game-room-manager"; 
 import { initializeRoomRoutes } from "./routes/room-router.ts"
 import { initializeMapRoutes } from "./routes/maps-router.ts";
@@ -31,11 +32,12 @@ const mapsManager = new MapsManager(supabaseManager)
 const userManager = new UserManager(supabaseManager, supabaseAuthHandler)
 
 
-const roomRouter = initializeRoomRoutes(gameRoomManager) 
+const roomRouter = initializeRoomRoutes(gameRoomManager, supabaseAuthHandler, supabaseManager) 
 const mapRouter = initializeMapRoutes(mapsManager)
-const userRouter = initializeUserRoutes(userManager)
+const userRouter = initializeUserRoutes(userManager, supabaseAuthHandler)
 
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
 app.use(cors(
   { 
     origin: process.env.CLIENT_URL,

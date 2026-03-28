@@ -25,18 +25,10 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager, authHandler:
     }
   })
 
-  router.post("/create-room", cookieParser(), express.json(), async(req, res) => {
-    const token = req.cookies["auth-token"]
-
-    if(!authHandler.validateToken(token)) { res.send(401) }
-
-    const userId = supabase.getUserFromToken(token)
-
-    if(!userId) { res.send(409) }
-
-    const gameData: ICreateRoomData = req.body
-
-    supabase.create
+  router.post("/create-room", ((req, res, next) => authHandler.validateToken(req, res, next)), express.json(), async(req, res) => { 
+    const gameData: ICreateRoomData =  req.body
+    console.log(gameData) 
+    console.log(req.user)
   })
 
   return router

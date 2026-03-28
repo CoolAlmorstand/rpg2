@@ -1,6 +1,6 @@
 
 import { createClient } from "@supabase/supabase-js"
-import { IDBManager } from "../interfaces/IDBManager"
+import { IDBManager, IRoomRow } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 import { ICreateRoomData } from "@terabithia/shared-types";
 
@@ -45,12 +45,17 @@ export class SupabaseManager implements IDBManager {
   }
   
   async getUserFromToken(token: string): Promise<string | undefined> {
-    const {data , error} = await this.supabase.auth.getUser(token) 
+    const { data } = await this.supabase.auth.getUser(token) 
     return data.user?.id 
   }
 
-  async createRoom(createRoomData: ICreateRoomData) {
-    const { data, error } = await this.supabase.from("parties").insert({})
+  async createRoom(createRoomData: ICreateRoomData, ownerId: string): Promise<IRoomRow> {
+    const { data, error } = await this.supabase.from("rooms").insert({owner_id: ownerId, name: this.createRoom.name })
+    if( error ) { 
+      console.log(error) 
+    } else {
+      console.log(data)
+    } 
   }
 
   async createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse> {
