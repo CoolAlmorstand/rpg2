@@ -8,8 +8,22 @@ export type IRoomMembersRowInsertValues = {
 }
 
 export type IRoomRow = {
-  uuid: string;
-  owner: string;
+  id: string;
+  name: string;
+  owner_id: string;
+}
+
+export type IRoomMemberRow = {
+  user_id: string;
+  room_id: string;
+} 
+
+export type IGetRoomOfUserResponse = {
+  success: true;
+  rooms: IRoomRow[];
+} | {
+  success: false;
+  error: {reason: string}
 }
 
 export type createRoomResult = {
@@ -22,4 +36,5 @@ export interface IDBManager {
   createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse>;
   getUserFromToken(token: string): Promise<string | undefined>
   createRoom(createRoomData: ICreateRoomData, ownerId: string): Promise<{IRoomRow}>
+  getRoomsOfUser(userId: string): Promise<IGetRoomOfUserResponse> 
 }
