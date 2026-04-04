@@ -2,10 +2,8 @@
 
 
 
-export type ICreateRoomData = {
-  pin: string | null;
-  name: string;
-  isPublic: boolean;
+export type IAPICreateRoomData = {
+  mapName: string;
 }
 
 
@@ -14,4 +12,13 @@ export type ICreateRoomResponse = {
 } | {
   success: false;
   error: {reason: string};
+}
+
+
+export type IAPIGetRoomsOfUserResponse = {
+  success: true;
+  rooms: { name: string, ownerUsername: string, roomId: string }[];
+} | {
+  success: false;
+  error: { reason: string };
 }

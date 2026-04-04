@@ -2,12 +2,14 @@
   import type { IUserLoginRequest, IUserLoginResponse, IUserCreateAccountRequest, IUserCreateAccountResponse} from "@terabithia/shared-types"
 
   import Logo from "$lib/components/ui/Logo.svelte";
+  import LoadingDialog from "$lib/components/ui/LoadingDialog.svelte";
   import { goto } from "$app/navigation"
 
   const SERVERURL = import.meta.env.VITE_SERVER_URL
 
   type ITab = "signin" | "signup"
   let tab: ITab = $state("signin")
+  let loadingScreen: LoadingDialog;
 
   let loginUsername = $state("")
   let loginPassword = $state("")
@@ -30,6 +32,8 @@
     }
     
     try {
+      loadingScreen.open()
+
       const response = await fetch(`${SERVERURL}/user/login-account`, {
         method: "POST",
         credentials: "include",
@@ -37,6 +41,7 @@
         body: JSON.stringify(accountDetails)
       })
 
+      loadingScreen.close()
       const authResponse: IUserLoginResponse = await response.json()
       console.log(authResponse)
 
@@ -134,4 +139,5 @@
       </div>
     {/if}
   </div>
+  <LoadingDialog bind:this={loadingScreen} message="Contacting Server", subMessage="Please wait" />
 </div> 

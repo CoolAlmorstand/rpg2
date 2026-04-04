@@ -1,8 +1,8 @@
 
 import { createClient, PostgrestError } from "@supabase/supabase-js"
-import { IDBManager, IRoomRow, IRoomMemberRow, IGetRoomOfUserResponse } from "../interfaces/IDBManager"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
-import { ICreateRoomData } from "@terabithia/shared-types";
+
 
 export class SupabaseManager implements IDBManager {
   supabase = createClient(
@@ -48,18 +48,9 @@ export class SupabaseManager implements IDBManager {
     const { data } = await this.supabase.auth.getUser(token) 
     return data.user?.id 
   }
-
-  async createRoom(createRoomData: ICreateRoomData, ownerId: string): Promise<IRoomRow> {
-    const { data, error } = await this.supabase.from("rooms").insert({owner_id: ownerId, name: this.createRoom.name })
-    if( error ) { 
-      console.log(error) 
-    } else {
-      console.log(data)
-    } 
-  }
   
-  async getRoomsOfUser(userId: string): Promise<IGetRoomOfUserResponse> {
-    const { data, error } = await this.supabase.from("room_members").select<"*", IRoomMemberRow>("*").eq("user_id", userId)   
+  async getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> {
+    const { data, error } = await this.supabase.from("room_members").select<"*", IDBRoomMemberRow>("*").eq("user_id", userId)   
     
     if(error){
       console.warn(error)
@@ -71,7 +62,7 @@ export class SupabaseManager implements IDBManager {
     else {
       const rooms = await Promise.all(
         data.map(async (roomMember) => {
-          const { data } = await this.supabase.from("rooms").select("name, owner_id").eq("id", roomMember.room_id).single<IRoomRow>()
+          const { data } = await this.supabase.from("rooms").select("name, owner_id, owner_name").eq("id", roomMember.room_id).single<IDBRoomRow>()
           return data
         })
       )
@@ -81,7 +72,26 @@ export class SupabaseManager implements IDBManager {
       }
     }
   }
+  async createNewRoom(roomData: IDBCreateNewRoomData): Promise<IDBCreateNewRoomResult> {
+    const {data, error} = await this.supabase.from("rooms").insert([{
+      owner_id: roomData.ownerId,
+      owner_name: roomData.ownerUsername,
+      name: roomData.mapName
+    }]).select("id").single<{ id: string }>()
+    
+    console.log(data)
 
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+    return {
+      success: true,
+      roomId: data.id
+    }
+  }
   async createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse> {
     const {error} = await this.supabase.auth.signUp({
       email: `${accountDetails.username}@terabithia.com`,

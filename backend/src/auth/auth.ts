@@ -70,7 +70,7 @@ export class SupabaseAuthHandler implements IAuthHandler {
         error: {reason: error.message}
       } 
     } 
-    else { 
+    else {
       return {
         success: true,
         accessToken: data.session.access_token,

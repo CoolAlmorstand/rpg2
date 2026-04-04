@@ -1,40 +1,51 @@
 
-import { IMapPreview, ICreateRoomData } from "@terabithia/shared-types"
+import { SupabaseClient } from "@supabase/supabase-js";
+import { IMapPreview } from "@terabithia/shared-types"
 import type { IApiUserCreateAccountRequest, IApiUserCreateAccountResponse} from "@terabithia/shared-types" 
 
-export type IRoomMembersRowInsertValues = {
+export type IDBRoomMembersRowInsertValues = {
   user_id: string;
   room_id: string;
 }
 
-export type IRoomRow = {
+export type IDBRoomRow = {
   id: string;
   name: string;
+  owner_name: string;
   owner_id: string;
 }
 
-export type IRoomMemberRow = {
+export type IDBRoomMemberRow = {
   user_id: string;
   room_id: string;
 } 
 
-export type IGetRoomOfUserResponse = {
+export type IDBGetRoomOfUserResponse = {
   success: true;
-  rooms: IRoomRow[];
+  rooms: IDBRoomRow[];
 } | {
   success: false;
   error: {reason: string}
 }
 
-export type createRoomResult = {
-  uuid: string;
-  roomCode: string;
+export type IDBCreateNewRoomResult = {
+  success: true;
+  roomId: string;
+} | {
+  success: false;
+  error: { reason: string }
+}
+
+export type IDBCreateNewRoomData = {
+  mapName: string;
+  ownerId: string;
+  ownerUsername: string;
 }
 
 export interface IDBManager {
   getAvailableMaps(): Promise<IMapPreview[]>; 
   createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse>;
+  createNewRoom(roomData: IDBCreateNewRoomData): Promise<IDBCreateNewRoomResult>
   getUserFromToken(token: string): Promise<string | undefined>
-  createRoom(createRoomData: ICreateRoomData, ownerId: string): Promise<{IRoomRow}>
-  getRoomsOfUser(userId: string): Promise<IGetRoomOfUserResponse> 
+  getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> 
 }

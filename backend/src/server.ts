@@ -17,6 +17,10 @@ import { SupabaseManager } from "./supabase/supabase.ts";
 import { MapsManager } from "./maps-manager/maps-manager.ts";
 import { UserManager } from "./user-manager/user-manager.ts";
 import { SupabaseAuthHandler } from "./auth/auth.ts";
+
+import { DBMock } from "../test/dbMock.ts";
+import { MockAuthHandler } from "../test/authHandlerMock.ts";
+
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -26,13 +30,16 @@ const app = express();
 const httpServer = createServer(app)
 
 const supabaseManager = new SupabaseManager()
-const gameRoomManager = new GameRoomManager()
+const dbMock = new DBMock()
+const authHandlerMock = new MockAuthHandler()
+
+const gameRoomManager = new GameRoomManager(supabaseManager)
 const supabaseAuthHandler = new SupabaseAuthHandler(supabaseManager.supabase)
 const mapsManager = new MapsManager(supabaseManager)
 const userManager = new UserManager(supabaseManager, supabaseAuthHandler)
 
 
-const roomRouter = initializeRoomRoutes(gameRoomManager, supabaseAuthHandler, supabaseManager) 
+const roomRouter = initializeRoomRoutes(gameRoomManager, supabaseAuthHandler, gameRoomManager) 
 const mapRouter = initializeMapRoutes(mapsManager)
 const userRouter = initializeUserRoutes(userManager, supabaseAuthHandler)
 
