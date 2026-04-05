@@ -42,10 +42,19 @@ export type IDBCreateNewRoomData = {
   ownerUsername: string;
 }
 
+export type IDBJoinUserToRoomResult = {
+  success: true;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
+
 export interface IDBManager {
   getAvailableMaps(): Promise<IMapPreview[]>; 
   createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse>;
   createNewRoom(roomData: IDBCreateNewRoomData): Promise<IDBCreateNewRoomResult>
   getUserFromToken(token: string): Promise<string | undefined>
   getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> 
+  joinUserToRoom(userId: string, roomId: string): Promise<IDBJoinUserToRoomResult>
 }

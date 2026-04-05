@@ -45,6 +45,6 @@ export class GameRoomManager implements IRoomManager {
   }
   
   async createNewRoom(roomData: IRoomCreateRoomData): Promise<IRoomCreateNewRoomResult> {
-    return await this.dbManager.createNewRoom(roomData)
+    const createRoomResult = await this.dbManager.createNewRoom(roomData)
   } 
 }

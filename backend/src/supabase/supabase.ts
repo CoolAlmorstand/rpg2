@@ -1,6 +1,6 @@
 
 import { createClient, PostgrestError } from "@supabase/supabase-js"
-import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult } from "../interfaces/IDBManager"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 
 
@@ -49,6 +49,21 @@ export class SupabaseManager implements IDBManager {
     return data.user?.id 
   }
   
+  async joinUserToRoom(userId: string, roomId: string): Promise<IDBJoinUserToRoomResult> {
+    const { error } = await this.supabase.from("room_members").insert([{
+      user_id: userId,
+      room_id: roomId
+    }])
+
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+    return { success: true }
+  }
+
   async getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> {
     const { data, error } = await this.supabase.from("room_members").select<"*", IDBRoomMemberRow>("*").eq("user_id", userId)   
     

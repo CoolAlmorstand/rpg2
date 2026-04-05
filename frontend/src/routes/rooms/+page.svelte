@@ -1,12 +1,15 @@
 
 <script lang="ts">
-  import type { IAPIGetRoomsOfUserResponse } from "@terabithia/shared-types"
+  import type { IAPIGetRoomsOfUserResponse, IAPICreateRoomData } from "@terabithia/shared-types"
+  import CreateRoomDialog from "./dialogs/CreateRoomDialog.svelte";
   import { onMount } from "svelte"
   import LoadingDialog from "$lib/components/ui/LoadingDialog.svelte";
 
   const SERVERURL = import.meta.env.VITE_SERVER_URL
   let rooms: {name: string; ownerUsername: string; roomId: string}[] = $state([])
   let loadingScreen: LoadingDialog;
+  let createRoomDialog: CreateRoomDialog;
+
   onMount(async() => {
     loadingScreen.open()
     const response = await fetch(`${SERVERURL}/rooms/get-rooms-of-user`, {
@@ -18,8 +21,12 @@
     if(data.success){
       rooms=data.rooms
     }
-  })
-  
+  }
+
+  )
+  async function createNewRoom() {
+    createRoomDialog.open() 
+  }
 </script>
 
 <div class="w-full h-full bg-[#fdf8d4] flex flex-col overflow-hidden">
@@ -31,7 +38,7 @@
       <button class="font-['Pixelify_Sans'] text-sm font-medium border border-[#9B7653] text-[#9B7653] px-3 py-1 rounded-md">
         Join
       </button>
-      <button class="font-['Pixelify_Sans'] text-sm font-medium bg-[#9B7653] text-white px-3 py-1 rounded-md">
+      <button onclick={createNewRoom} class="font-['Pixelify_Sans'] text-sm font-medium bg-[#9B7653] text-white px-3 py-1 rounded-md">
         Create
       </button>
     </div>
@@ -51,6 +58,6 @@
       </div>
     {/each}
   </div>
-  
-  <LoadingDialog bind:this={loadingScreen} message="Contacting Server", subMessage="Please wait" />
+  <CreateRoomDialog bind:this={createRoomDialog} /> 
+  <LoadingDialog bind:this={loadingScreen} message="Contacting Server" subMessage="Please wait" />
 </div>
