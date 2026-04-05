@@ -2,5 +2,10 @@
   "name": "@terabithia/shared-types",
   "version": "1.0.0",
   "main": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./api": "./api/index.ts",
+    "./socket": "./socket/index.ts"
+  },
   "types": "index.ts"
 }

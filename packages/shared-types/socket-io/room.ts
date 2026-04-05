@@ -1,11 +1,8 @@
 
 
-
-export type ICreateGameData = {
-  mapName: string;
-  maxPlayers: number;
-}
-
+export type IROOMCreateRoomData = {
+  roonName: string;
+} 
 
 export type IJoinRoomData = {
   username: string;

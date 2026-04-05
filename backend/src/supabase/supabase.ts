@@ -1,12 +1,13 @@
 
-import { createClient } from "@supabase/supabase-js"
-import { ISupabaseManager } from "../interfaces/ISupabaseManager"
-import { IMapPreview, IMapInfo, IAuthCreateAccountDetails } from "@terabithia/shared-types"
+import { createClient, PostgrestError } from "@supabase/supabase-js"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult } from "../interfaces/IDBManager"
+import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 
-export class SupabaseManager implements ISupabaseManager {
+
+export class SupabaseManager implements IDBManager {
   supabase = createClient(
-    "https://hlsdidxxakfbbsbryhdz.supabase.co",
-    "sb_secret_ls1n6lBObntyfB0dNEzayQ_PJsPU3be"
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!  
   )
 
   constructor() {
@@ -42,9 +43,72 @@ export class SupabaseManager implements ISupabaseManager {
 
     return availableMaps 
   }
+  
+  async getUserFromToken(token: string): Promise<string | undefined> {
+    const { data } = await this.supabase.auth.getUser(token) 
+    return data.user?.id 
+  }
+  
+  async joinUserToRoom(userId: string, roomId: string): Promise<IDBJoinUserToRoomResult> {
+    const { error } = await this.supabase.from("room_members").insert([{
+      user_id: userId,
+      room_id: roomId
+    }])
 
-  async createNewAccount(accountDetails: IAuthCreateAccountDetails) {
-    const response = await this.supabase.auth.signUp({
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+    return { success: true }
+  }
+
+  async getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> {
+    const { data, error } = await this.supabase.from("room_members").select<"*", IDBRoomMemberRow>("*").eq("user_id", userId)   
+    
+    if(error){
+      console.warn(error)
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+    else {
+      const rooms = await Promise.all(
+        data.map(async (roomMember) => {
+          const { data } = await this.supabase.from("rooms").select("name, owner_id, owner_name").eq("id", roomMember.room_id).single<IDBRoomRow>()
+          return data
+        })
+      )
+      return {
+        success: true,
+        rooms: rooms.filter(x => x != null),
+      }
+    }
+  }
+  async createNewRoom(roomData: IDBCreateNewRoomData): Promise<IDBCreateNewRoomResult> {
+    const {data, error} = await this.supabase.from("rooms").insert([{
+      owner_id: roomData.ownerId,
+      owner_name: roomData.ownerUsername,
+      name: roomData.mapName
+    }]).select("id").single<{ id: string }>()
+    
+    console.log(data)
+
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+    return {
+      success: true,
+      roomId: data.id
+    }
+  }
+  async createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse> {
+    const {error} = await this.supabase.auth.signUp({
       email: `${accountDetails.username}@terabithia.com`,
       password: accountDetails.password,
       options: {
@@ -54,16 +118,33 @@ export class SupabaseManager implements ISupabaseManager {
       }
     })
 
-    return response
-  }
-
-  async accountLogin(accountDetails: IAuthCreateAccountDetails) {
-    const response = await this.supabase.auth.signInWithPassword({
-      email: `${accountDetails.username}@terabithia.com`,
-      password: accountDetails.password 
-    })
-
-    
-    return response
-  }
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    } else {
+      return {
+        success: true
+      }
+    }
+  }  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
