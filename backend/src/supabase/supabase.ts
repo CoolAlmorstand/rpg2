@@ -1,6 +1,6 @@
 
 import { createClient, PostgrestError } from "@supabase/supabase-js"
-import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult } from "../interfaces/IDBManager"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult, IDBGetRoomFromIdResult } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 
 
@@ -63,6 +63,22 @@ export class SupabaseManager implements IDBManager {
     }
     return { success: true }
   }
+  
+  async getRoomFromId(roomId: string): Promise<IDBGetRoomFromIdResult> {
+    const {data, error} = await this.supabase.from("rooms").select("*").eq("id", roomId).single<IDBRoomRow>() 
+
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+
+    return {
+      success: true,
+      room: data
+    }
+  }
 
   async getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> {
     const { data, error } = await this.supabase.from("room_members").select<"*", IDBRoomMemberRow>("*").eq("user_id", userId)   
@@ -77,7 +93,7 @@ export class SupabaseManager implements IDBManager {
     else {
       const rooms = await Promise.all(
         data.map(async (roomMember) => {
-          const { data } = await this.supabase.from("rooms").select("name, owner_id, owner_name").eq("id", roomMember.room_id).single<IDBRoomRow>()
+          const { data } = await this.supabase.from("rooms").select("name, owner_id, owner_name, id").eq("id", roomMember.room_id).single<IDBRoomRow>()
           return data
         })
       )
@@ -91,11 +107,9 @@ export class SupabaseManager implements IDBManager {
     const {data, error} = await this.supabase.from("rooms").insert([{
       owner_id: roomData.ownerId,
       owner_name: roomData.ownerUsername,
-      name: roomData.mapName
+      name: roomData.roomName
     }]).select("id").single<{ id: string }>()
     
-    console.log(data)
-
     if(error) {
       return {
         success: false,
