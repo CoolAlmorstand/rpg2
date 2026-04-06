@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IUserLoginRequest, IUserLoginResponse, IUserCreateAccountRequest, IUserCreateAccountResponse} from "@terabithia/shared-types"
+  import type { IApiUserLoginRequest, IApiUserLoginResponse, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse} from "@terabithia/shared-types"
 
   import Logo from "$lib/components/ui/Logo.svelte";
   import LoadingDialog from "$lib/components/ui/LoadingDialog.svelte";
@@ -26,7 +26,7 @@
     if (!loginUsername) return alert("username is empty")
     if (!loginPassword) return alert("password is empty")
 
-    const accountDetails: IUserCreateAccountRequest = {
+    const accountDetails: IApiUserLoginRequest = {
       username: loginUsername,
       password: loginPassword
     }
@@ -42,18 +42,14 @@
       })
 
       loadingScreen.close()
-      const authResponse: IUserLoginResponse = await response.json()
+      const authResponse: IApiUserLoginResponse = await response.json()
       console.log(authResponse)
 
       if (!authResponse.success) {
         alert(authResponse.error!.reason)
         return
       }
-
-      sessionStorage.setItem("terabithia:account-details", JSON.stringify({
-        authToken: authResponse.token,
-        username: authResponse.username
-      }))
+ 
       alert(`welcome back ${authResponse.username}`)
       goto("/main-menu")
     } catch (error) {
@@ -66,19 +62,20 @@
     if (signupPassword.length < 6) return alert("password must be at least 6 characters")
     if (signupPassword !== signupConfirmPassword) return alert("passwords did not match")
 
-    const accountDetails: IUserCreateAccountRequest = {
+    const accountDetails: IApiUserCreateAccountRequest = {
       username: signupUsername,
       password: signupPassword
     }
     
     try {
+      loadingScreen.open()
       const response = await fetch(`${SERVERURL}/user/create-account`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(accountDetails)
       })
-
-      const authResponse: IUserCreateAccountResponse = await response.json()
+      loadingScreen.close()
+      const authResponse: IApiUserCreateAccountResponse = await response.json()
       console.log(authResponse)
 
       if (!authResponse.success) {
@@ -139,5 +136,5 @@
       </div>
     {/if}
   </div>
-  <LoadingDialog bind:this={loadingScreen} message="Contacting Server", subMessage="Please wait" />
+  <LoadingDialog bind:this={loadingScreen} message="Contacting Server" subMessage="Please wait" />
 </div> 
