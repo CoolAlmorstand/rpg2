@@ -37,8 +37,21 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
 
   router.post("/create-account", express.json(), async (req, res) => {
     const accountDetails: IApiUserCreateAccountRequest = req.body 
-    const response: IUserCreateAccountResponse = await userManager.createNewAccount(accountDetails)
-    res.json(response)
+    const createAccountResult: IUserCreateAccountResponse = await userManager.createNewAccount(accountDetails)
+    
+    if(createAccountResult.success) {
+      const response: IApiUserCreateAccountResponse = {
+        success: true
+      } 
+      res.send(response)
+    }
+    else {
+      const response: IApiUserCreateAccountResponse = {
+        success: false,
+        error: createAccountResult.error 
+      } 
+      res.send(response)
+    } 
   })
   
   router.post("/login-account", express.json(), async (req, res) => {

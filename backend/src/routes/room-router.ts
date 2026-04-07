@@ -1,16 +1,12 @@
-import express, { response } from "express";
+import express from "express";
 import { Router } from "express"
 import { IRoomManager, IRoomCreateRoomData } from "../interfaces/IRoomManeger";
-import { IUserManager } from "../interfaces/user/IUserManager.ts";
 import { IAPIGetRoomsOfUserResponse, IAPIJoinRoomResponse, IAPIJoinRoom, IAPICreateRoomData, IAPICreateRoomResponse } from "@terabithia/shared-types";
-import type { IAuthHandler } from "../interfaces/auth/IAuthHandler.ts"
-import cookieParser from "cookie-parser"
-import { IDBManager } from "../interfaces/IDBManager.ts";
-import { error } from "node:console";
+import { IAuthMiddleware } from "../interfaces/middleware/auth-middleware.ts";
 
 const router = Router()
 
-export function initializeRoomRoutes(gameRoomManager: IRoomManager, authHandler: IAuthHandler, roomManager: IRoomManager) {
+export function initializeRoomRoutes(gameRoomManager: IRoomManager, authMiddleware: IAuthMiddleware, roomManager: IRoomManager) {
   router.post("/check-if-room-exist", express.text(), (req, res) => {
     const roomId = req.body
     if(gameRoomManager.checkIfRoomExist(roomId)) {
@@ -23,7 +19,7 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager, authHandler:
       })
     }
   })
-  router.get("/get-rooms-of-user", ((req, res, next) => authHandler.validateToken(req, res, next)), async(req, res) => {
+  router.get("/get-rooms-of-user", authMiddleware.validtateToken, async(req, res) => {
     const userId = req.user.id 
     const getRoomsResult = await roomManager.getRoomsOfUser(userId)
 
@@ -42,7 +38,7 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager, authHandler:
       res.send(response)
     } 
   })
-  router.post("/create-room", ((req, res, next) => authHandler.validateToken(req, res, next)), express.json(), async(req, res) => { 
+  router.post("/create-room", authMiddleware.validtateToken, express.json(), async(req, res) => { 
     const requestData: IAPICreateRoomData = req.body
 
     const createrGameData: IRoomCreateRoomData = {
@@ -70,7 +66,7 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager, authHandler:
     }
   })
     
-  router.post("/join-room", ((req, res, next) => authHandler.validateToken(req, res, next)), express.json(), async(req, res) => { 
+  router.post("/join-room", authMiddleware.validtateToken, express.json(), async(req, res) => { 
     const requestData: IAPIJoinRoom = req.body
     const joinRoomResult = await roomManager.joinRoom(req.user.id, requestData.roomId) 
 

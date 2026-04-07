@@ -11,6 +11,7 @@ import { GameRoomManager } from "./game-room/game-room-manager";
 import { initializeRoomRoutes } from "./routes/room-router.ts"
 import { initializeMapRoutes } from "./routes/maps-router.ts";
 import { initializeUserRoutes } from "./routes/user-router.ts";
+import { createAuthMiddleware } from "./middleware/auth.ts";
 import { createSocketIOServer } from "./socket-io/socket-io.ts";
 import { RoomIoSocket } from "./socket-io/room.ts";
 import { SupabaseManager } from "./supabase/supabase.ts";
@@ -30,16 +31,17 @@ const app = express();
 const httpServer = createServer(app)
 
 const supabaseManager = new SupabaseManager()
-const dbMock = new DBMock()
-const authHandlerMock = new MockAuthHandler()
+const supabaseAuthHandler = new SupabaseAuthHandler(supabaseManager.supabase)
+// const dbMock = new DBMock()
+// const authHandlerMock = new MockAuthHandler()
+
+const authMiddleware = createAuthMiddleware(supabaseAuthHandler)
 
 const gameRoomManager = new GameRoomManager(supabaseManager)
-const supabaseAuthHandler = new SupabaseAuthHandler(supabaseManager.supabase)
 const mapsManager = new MapsManager(supabaseManager)
 const userManager = new UserManager(supabaseManager, supabaseAuthHandler)
 
-
-const roomRouter = initializeRoomRoutes(gameRoomManager, supabaseAuthHandler, gameRoomManager) 
+const roomRouter = initializeRoomRoutes(gameRoomManager, authMiddleware, gameRoomManager) 
 const mapRouter = initializeMapRoutes(mapsManager)
 const userRouter = initializeUserRoutes(userManager, supabaseAuthHandler)
 

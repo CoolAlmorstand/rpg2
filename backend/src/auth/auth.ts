@@ -1,6 +1,6 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
+import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IAuthValidateTokenResult, IRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
 import type { ISessionToken } from "../interfaces/auth/ISessionToken.ts";
 
 import { SessionToken } from "./session-token.ts"
@@ -37,24 +37,29 @@ export class SupabaseAuthHandler implements IAuthHandler {
     }
   } 
  
-  async validateToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const token = req.cookies["access-token"]
-
-    if(!token) {
-      res.status(401).send("invalid-access-token")
-      return
+  async validateToken(token: string): Promise<IAuthValidateTokenResult> { 
+    const { data, error} = await this.supabase.auth.getUser(token)
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
     }
+
+    return {
+      success: true,
+      userId: data.user!.id,
+      username: data.user!.user_metadata.username
+    }
+  }
+
+  async vkalidateToken(token: string): Promise<void> {
 
     const { data, error} = await this.supabase.auth.getUser(token)
     if(error) { 
-      res.status(401).send("invalid-access-token")
     }
     else {
-      req.user = {
-        id: data.user!.id,
-        username: data.user!.user_metadata.username
-      }
-      next()
+      
     }
   } 
 

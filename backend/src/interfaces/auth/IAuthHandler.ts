@@ -17,7 +17,7 @@ export type IAuthUserLoginResponse = {
   error: {reason: string};
 }
 
-export type IRefreshTokenResult = {
+export type IAuthRefreshTokenResult = {
   success: true;
   accessToken: string;
   refreshToken: string;
@@ -26,8 +26,17 @@ export type IRefreshTokenResult = {
   error: {reason: string}
 }
 
+export type IAuthValidateTokenResult = {
+  success: true; 
+  username: string;
+  userId: string;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
 export interface IAuthHandler {
-  refreshToken(token: string): Promise<IRefreshTokenResult>;
-  validateToken(req: Request, res: Response, next: NextFunction): Promise<void>;
+  refreshToken(token: string): Promise<IAuthRefreshTokenResult>;
+  validateToken(token: string): Promise<IAuthValidateTokenResult>;
   userLogin(credentials: IAuthUserLoginRequest): Promise<IAuthUserLoginResponse>
 }
