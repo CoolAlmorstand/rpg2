@@ -1,6 +1,7 @@
 
 <script lang="ts">
   import type { IAPIGetRoomsOfUserResponse, IAPICreateRoomData } from "@terabithia/shared-types"
+  import { goto } from "$app/navigation"
   import CreateRoomDialog from "./dialogs/CreateRoomDialog.svelte";
   import JoinRoomDialog from "./dialogs/JoinRoomDialog.svelte";
   import { onMount } from "svelte"
@@ -24,9 +25,11 @@
     if(data.success){
       rooms=data.rooms
     }
-  }
+  })
 
-  )
+  function enterRoom(roomId: string) {
+   goto("/room") 
+  }
   async function createNewRoom() {
     createRoomDialog.open() 
   }
@@ -76,7 +79,7 @@
           <p class="font-['Pixelify_Sans'] text-md text-[#9B7653]/50">ID: {room.roomId}</p>
           <p class="font-['Pixelify_Sans'] text-sm text-[#9B7653]/70">owner: {room.ownerUsername}</p>
         </div>
-        <button class="font-['Pixelify_Sans'] text-sm font-medium bg-[#9B7653] text-white px-4 py-1.5 rounded-md">
+        <button onclick={() => enterRoom(room.roomId)} class="font-['Pixelify_Sans'] text-sm font-medium bg-[#9B7653] text-white px-4 py-1.5 rounded-md">
           Play
         </button>
       </div>
