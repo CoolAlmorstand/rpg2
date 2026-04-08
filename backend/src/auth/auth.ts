@@ -1,6 +1,6 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IAuthValidateTokenResult, IRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
+import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IAuthValidateTokenResult, IAuthRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
 import type { ISessionToken } from "../interfaces/auth/ISessionToken.ts";
 
 import { SessionToken } from "./session-token.ts"
@@ -14,7 +14,7 @@ export class SupabaseAuthHandler implements IAuthHandler {
     this.supabase = supabase
   }
   
-  async refreshToken(token: string): Promise<IRefreshTokenResult> {
+  async refreshToken(token: string): Promise<IAuthRefreshTokenResult> {
     const { data, error } = await this.supabase.auth.refreshSession({ refresh_token: token })
     if(error) {
      return {
@@ -52,16 +52,6 @@ export class SupabaseAuthHandler implements IAuthHandler {
       username: data.user!.user_metadata.username
     }
   }
-
-  async vkalidateToken(token: string): Promise<void> {
-
-    const { data, error} = await this.supabase.auth.getUser(token)
-    if(error) { 
-    }
-    else {
-      
-    }
-  } 
 
   async userLogin(credentials: IAuthUserLoginRequest): Promise<IAuthUserLoginResponse> {
     const {data, error} = await this.supabase.auth.signInWithPassword({

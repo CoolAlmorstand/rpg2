@@ -7,13 +7,18 @@ import { createServer } from "http";
 
   
 import cookieParser from "cookie-parser"
-import { GameRoomManager } from "./game-room/game-room-manager"; 
+
 import { initializeRoomRoutes } from "./routes/room-router.ts"
 import { initializeMapRoutes } from "./routes/maps-router.ts";
 import { initializeUserRoutes } from "./routes/user-router.ts";
+
 import { createAuthMiddleware } from "./middleware/auth.ts";
+
 import { createSocketIOServer } from "./socket-io/socket-io.ts";
-import { RoomIoSocket } from "./socket-io/room.ts";
+import { RoomSocket } from "./socket-io/room.ts";
+import { createSocketAuthMiddleware } from "./socket-io/middleware/auth.ts";
+
+import { GameRoomManager } from "./game-room/game-room-manager"; 
 import { SupabaseManager } from "./supabase/supabase.ts";
 import { MapsManager } from "./maps-manager/maps-manager.ts";
 import { UserManager } from "./user-manager/user-manager.ts";
@@ -45,6 +50,10 @@ const roomRouter = initializeRoomRoutes(gameRoomManager, authMiddleware, gameRoo
 const mapRouter = initializeMapRoutes(mapsManager)
 const userRouter = initializeUserRoutes(userManager, supabaseAuthHandler)
 
+const io = createSocketIOServer(httpServer)
+const socketAuthMiddleware = createSocketAuthMiddleware(supabaseAuthHandler)
+const roomIoSocketManager = new RoomSocket(io, gameRoomManager, socketAuthMiddleware)
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
 app.use(cors(
@@ -56,11 +65,6 @@ app.use(cors(
 app.use("/rooms", roomRouter)
 app.use("/map", mapRouter)
 app.use("/user", userRouter)
-
-const io = createSocketIOServer(httpServer) 
-const roomIoSocketManager = new RoomIoSocket(io, gameRoomManager)  
-
-
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

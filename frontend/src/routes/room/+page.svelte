@@ -1,7 +1,11 @@
 <script lang="ts">
-  // ── Props ──
+  import { io } from "socket.io-client"
+  import { onMount } from "svelte"
+
+  const SERVERURL = import.meta.env.VITE_SERVER_URL
   let roomId = $state("XKCD42");
   let ping = $state(20);
+  
 
   // ── Tab system ──
   type Tab = { id: string; label: string };
@@ -56,6 +60,13 @@
   function handleChatKey(e: KeyboardEvent) {
     if (e.key === "Enter") sendChat();
   }
+
+  onMount(async() => {
+    const socket = io(`${SERVERURL}/room`)
+    socket.on("connect_error", (error) => {
+      console.log(error)
+    } )
+  })
 </script>
 
 <div class="flex flex-col min-h-dvh bg-[#fdf8d4] text-[#2a1f0e] font-['Pixelify_Sans'] overflow-hidden [background-image:repeating-linear-gradient(0deg,transparent,transparent_28px,rgba(155,118,83,0.06)_28px,rgba(155,118,83,0.06)_29px)]">

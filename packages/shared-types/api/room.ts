@@ -29,6 +29,7 @@ export type IAPIJoinRoomResponse = {
   error: {}
 }
 
+
 export type IAPIGetRoomsOfUserResponse = {
   success: true;
   rooms: { name: string, ownerUsername: string, roomId: string }[];
