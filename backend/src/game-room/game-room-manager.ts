@@ -23,18 +23,25 @@ export class GameRoomManager implements IRoomManager {
   }
  
   async joinActiveRoom(userId: string, username: string, roomId: string): Promise<IRoomJoinActiveRoomResult> {
-    //create the room session if it odesnt exist
     if(!this.activeRooms[roomId]) {
-      const createSessionResult = await this.startRoomSessionResult(roomId)
-      if(!createSessionResult.success) { 
-        return {success: false, error: createSessionResult.error }
-      }
+      return {
+        success: false,
+        error: {reason: `active room session of room: ${roomId} doesnt exist`}
+      } 
     } 
-
-    this.activeRooms[roomId].connectedUsers = {}
+    if(!this.activeRooms[roomId].memberUsers[userId]) {
+      return {
+        success: false, 
+        error: {reason: "user is not a member of room"}
+      }
+    }
+    this.activeRooms[roomId].connectedUsers[ userId] = {username, id: userId }
+    return {
+      success: true
+    }
   }
   
-  async startRoomSessionResult(roomId: string): Promise<IRoomStartRoomSessionResult> {
+  async startRoomSession(roomId: string): Promise<IRoomStartRoomSessionResult> {
     const getRoomResult = await this.dbManager.getRoomFromId(roomId)
 
     if(!getRoomResult.success) {
@@ -49,13 +56,18 @@ export class GameRoomManager implements IRoomManager {
 
     const activeRoom: IActiveRoom = {
       connectedUsers: {},
+      roomName: getRoomResult.room.name,
+      ownerUsername: getRoomResult.room.owner_name,
+      ownerId: getRoomResult.room.owner_id,
+      id: getRoomResult.room.id,
       sessionChats: {},
       memberUsers: getRoomMembersResult.members
     }
 
     this.activeRooms[roomId] = activeRoom
     return {
-      success: true
+      success: true,
+      activeRoom,
     }
   }
 

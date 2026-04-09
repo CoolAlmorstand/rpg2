@@ -13,4 +13,9 @@ export type IActiveRoom = {
   //user id as the key with the value as a message
   //later to be saved when the room session ends
   sessionChats: Record<string, string>; 
+
+  roomName: string;
+  ownerUsername: string;
+  ownerId: string;
+  id: string;
 }

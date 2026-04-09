@@ -34,10 +34,7 @@ export type IRoomJoinRoomResult = {
 }
 
 export type IRoomJoinActiveRoomResult = {
-  success: true,
-  ownerUsername: string;
-  roomName: string;
-  memberUsers: { username: string, id: string }[];
+  success: true;
 } | {
   success: false;
   error: {reason: string}
@@ -45,6 +42,7 @@ export type IRoomJoinActiveRoomResult = {
 
 export type IRoomStartRoomSessionResult = {
   success: true;
+  activeRoom: IActiveRoom;
 } | {
   success: false;
   error: {reason: string}
@@ -54,8 +52,8 @@ export interface IRoomManager {
   activeRooms: Record<string, IActiveRoom>
   getRoomsOfUser(userId: string): Promise<IRoomGetRoomsOfUserResult>
   joinRoom(userId: string, roomId: string): Promise<IRoomJoinRoomResult>
-  joinActiveRoom(userId: string, roomId: string ): Promise<IRoomJoinActiveRoomResult>;
-  startRoomSessionResult(roomId: string): Promise<IRoomStartRoomSessionResult>;
+  joinActiveRoom(userId: string, username: string, roomId: string ): Promise<IRoomJoinActiveRoomResult>;
+  startRoomSession(roomId: string): Promise<IRoomStartRoomSessionResult>;
   checkIfRoomExist(roomId: string): boolean;
   createNewRoom(roomData: IRoomCreateRoomData): Promise<IRoomCreateNewRoomResult>
 }

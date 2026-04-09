@@ -1,6 +1,6 @@
 
 import { createClient, PostgrestError } from "@supabase/supabase-js"
-import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult, IDBGetRoomFromIdResult, IDBGetMembersOfRoomResult } from "../interfaces/IDBManager"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBIsUserAMemberOfRoomResult, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult, IDBGetRoomFromIdResult, IDBGetMembersOfRoomResult } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 
 
@@ -42,6 +42,14 @@ export class SupabaseManager implements IDBManager {
     } 
 
     return availableMaps 
+  }
+  
+  async isUserAMemberOfRoom(userId: string, roomId: string): Promise<IDBIsUserAMemberOfRoomResult> {
+    const {data, error} = await this.supabase.from("room_members").select<"user_id", {user_id: string}>("user_id").eq("user_id", userId).eq("room_id", roomId).single() 
+    if(error) {
+      return {success: false, error: {reason: error.message}}
+    }
+    return {success: true}
   }
 
   async getMembersOfRoom(roomId: string): Promise<IDBGetMembersOfRoomResult> {
