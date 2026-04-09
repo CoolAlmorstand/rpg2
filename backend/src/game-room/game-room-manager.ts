@@ -1,17 +1,17 @@
 import { IDBManager } from "../interfaces/IDBManager"
 import type { IGame } from "../interfaces/IGame"  
-import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult } from "../interfaces/IRoomManeger"
-import type { IROOMCreateRoomData } from "@terabithia/shared-types"
+import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult } from "../interfaces/room-manager/IRoomManeger"
+import type { IActiveRoom } from "../interfaces/room-manager/IActiveRoom"
 
 export class GameRoomManager implements IRoomManager {
   dbManager: IDBManager
-  rooms: Record<string, IGame> = {}
+  activeRooms: Record<string, IActiveRoom> = {}
   constructor(dbManager: IDBManager) {
     this.dbManager = dbManager
   }
   
   checkIfRoomExist(roomId: string ): boolean {
-    if(this.rooms[roomId]){
+    if(this.activeRooms[roomId]){
       return true
     } else {
       return false
@@ -19,9 +19,46 @@ export class GameRoomManager implements IRoomManager {
   }
 
   findRoom(roomId: string) {
-    return this.rooms[roomId]
+    return this.activeRooms[roomId]
+  }
+ 
+  async joinActiveRoom(userId: string, username: string, roomId: string): Promise<IRoomJoinActiveRoomResult> {
+    //create the room session if it odesnt exist
+    if(!this.activeRooms[roomId]) {
+      const createSessionResult = await this.startRoomSessionResult(roomId)
+      if(!createSessionResult.success) { 
+        return {success: false, error: createSessionResult.error }
+      }
+    } 
+
+    this.activeRooms[roomId].connectedUsers = {}
   }
   
+  async startRoomSessionResult(roomId: string): Promise<IRoomStartRoomSessionResult> {
+    const getRoomResult = await this.dbManager.getRoomFromId(roomId)
+
+    if(!getRoomResult.success) {
+      return { success: false, error: getRoomResult.error }
+    }
+
+    const getRoomMembersResult = await this.dbManager.getMembersOfRoom(roomId)
+    
+    if(!getRoomMembersResult.success) {
+      return { success: false, error: getRoomMembersResult.error }
+    }
+
+    const activeRoom: IActiveRoom = {
+      connectedUsers: {},
+      sessionChats: {},
+      memberUsers: getRoomMembersResult.members
+    }
+
+    this.activeRooms[roomId] = activeRoom
+    return {
+      success: true
+    }
+  }
+
   async joinRoom(userId: any, roomId: any): Promise<IRoomJoinRoomResult> {
     const joinUserResult = await this.dbManager.joinUserToRoom(userId, roomId)
     

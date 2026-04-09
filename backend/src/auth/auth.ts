@@ -38,6 +38,14 @@ export class SupabaseAuthHandler implements IAuthHandler {
   } 
  
   async validateToken(token: string): Promise<IAuthValidateTokenResult> { 
+
+    if(!token) {
+      return {
+        success: false,
+        error: {reason: "token is empty"}
+      }
+    }
+
     const { data, error} = await this.supabase.auth.getUser(token)
     if(error) {
       return {

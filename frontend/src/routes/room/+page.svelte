@@ -62,7 +62,9 @@
   }
 
   onMount(async() => {
-    const socket = io(`${SERVERURL}/room`)
+    const socket = io(`${SERVERURL}/room`, {
+      withCredentials: true,
+    })
     socket.on("connect_error", (error) => {
       console.log(error)
     } )

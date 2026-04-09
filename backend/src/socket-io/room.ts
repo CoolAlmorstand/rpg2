@@ -1,6 +1,6 @@
 
 import type {Socket, Namespace, Server } from "socket.io"
-import type { ISocketDataOnHandshake } from "@terabithia/shared-types"
+import type { ISocketDataOnHandshake, ISocketJoinRoomRequest } from "@terabithia/shared-types"
 
 import { IRoomManager } from "../interfaces/IRoomManeger";
 import { IAuthHandler } from "../interfaces/auth/IAuthHandler";
@@ -24,10 +24,11 @@ export class RoomSocket {
 
   async onConnect(socket: Socket) {
     const socketData: ISocketDataOnHandshake = socket.data
-    const user = socketData.user
-    console.log(user)
-    console.log("hiyaaa")
+    const user = socketData.user 
     this.connectedUsers[socket.id] = user
+  }
 
+  async joinRoom(socket: Socket, data: ISocketJoinRoomRequest) {
+     
   }
 }

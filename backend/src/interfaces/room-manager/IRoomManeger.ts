@@ -1,5 +1,5 @@
 
-import type { IGame } from "./IGame";
+import { IActiveRoom } from "./IActiveRoom";
 
 export type IRoomGetRoomsOfUserResult = {
   success: true;
@@ -33,10 +33,29 @@ export type IRoomJoinRoomResult = {
   error: {reason: string}
 }
 
+export type IRoomJoinActiveRoomResult = {
+  success: true,
+  ownerUsername: string;
+  roomName: string;
+  memberUsers: { username: string, id: string }[];
+} | {
+  success: false;
+  error: {reason: string}
+}
+
+export type IRoomStartRoomSessionResult = {
+  success: true;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
 export interface IRoomManager {
-  rooms: Record<string, IGame>
+  activeRooms: Record<string, IActiveRoom>
   getRoomsOfUser(userId: string): Promise<IRoomGetRoomsOfUserResult>
-  joinRoom(userId, roomId): Promise<IRoomJoinRoomResult>
+  joinRoom(userId: string, roomId: string): Promise<IRoomJoinRoomResult>
+  joinActiveRoom(userId: string, roomId: string ): Promise<IRoomJoinActiveRoomResult>;
+  startRoomSessionResult(roomId: string): Promise<IRoomStartRoomSessionResult>;
   checkIfRoomExist(roomId: string): boolean;
   createNewRoom(roomData: IRoomCreateRoomData): Promise<IRoomCreateNewRoomResult>
 }

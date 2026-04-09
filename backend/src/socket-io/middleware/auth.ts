@@ -10,10 +10,8 @@ export function createSocketAuthMiddleware(authHandler: IAuthHandler): ISocketAu
   async function validateToken(socket: Socket, next: (error?: ExtendedError) => void): Promise<void> {
     try {
       const cookies = cookie.parse(socket.handshake.headers.cookie ?? "")
-      // const accessToken = cookies["access-token"]
-      const accessToken = undefined
+      const accessToken = cookies["access-token"]
       const validateResult = await authHandler.validateToken(accessToken)
-      console.log(validateResult)
       if(validateResult.success) {
         const socketData: ISocketDataOnHandshake = {
           user: {

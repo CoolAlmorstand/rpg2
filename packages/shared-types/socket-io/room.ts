@@ -7,3 +7,8 @@ export type ISocketRoomSendMessageRequest = {
 }
 
 
+export type ISocketJoinRoomRequest = {
+  roomId: string;
+}
+
+
