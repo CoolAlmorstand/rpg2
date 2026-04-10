@@ -28,7 +28,7 @@
   })
 
   function enterRoom(roomId: string) {
-   goto("/room") 
+   goto(`/room/${roomId}`) 
   }
   async function createNewRoom() {
     createRoomDialog.open() 

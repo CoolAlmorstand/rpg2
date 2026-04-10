@@ -12,7 +12,7 @@ export type IActiveRoom = {
   memberUsers: Record<string, {username: string; id: string}>;
   //user id as the key with the value as a message
   //later to be saved when the room session ends
-  sessionChats: Record<string, string>; 
+  sessionChats: {sender: {username: string; id: string}, message: string}[]; 
 
   roomName: string;
   ownerUsername: string;

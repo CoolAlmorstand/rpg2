@@ -1,11 +1,16 @@
 import { IDBManager } from "../interfaces/IDBManager"
 import type { IGame } from "../interfaces/IGame"  
-import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult } from "../interfaces/room-manager/IRoomManeger"
+import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult, getActiveRoomOfUserResult } from "../interfaces/room-manager/IRoomManeger"
 import type { IActiveRoom } from "../interfaces/room-manager/IActiveRoom"
 
 export class GameRoomManager implements IRoomManager {
   dbManager: IDBManager
+  //key is room id
   activeRooms: Record<string, IActiveRoom> = {}
+  //a quick cache of what active room a user is on
+  //key is userId val is roomId
+  activeRoomOfUsers: Record<string, string>
+
   constructor(dbManager: IDBManager) {
     this.dbManager = dbManager
   }
@@ -17,6 +22,31 @@ export class GameRoomManager implements IRoomManager {
       return false
     }
   }
+  
+  getActiveRoomOFUser(userId: string): getActiveRoomOfUserResult {
+    return {
+      roomId: this.activeRoomOfUsers[userId] 
+    }
+  }
+
+  async sendChatToRoom(roomId: string, message: string, sender: { username: string; id: string }): Promise<IRoomSendChatResult> {
+    if(!this.activeRooms[roomId] || !this.activeRooms[roomId].memberUsers[sender.id]) {
+      return {
+        success: false,
+        error: {reason: "room does not exist or user is not a member of said room"}
+      }
+    }
+
+    this.activeRooms[roomId].sessionChats.push({
+      sender,
+      message,
+    }) 
+
+    return {
+      success: true,
+      indexOrder: this.activeRooms[roomId].sessionChats.length - 1 
+    }
+  } 
 
   findRoom(roomId: string) {
     return this.activeRooms[roomId]
@@ -28,7 +58,13 @@ export class GameRoomManager implements IRoomManager {
         success: false,
         error: {reason: `active room session of room: ${roomId} doesnt exist`}
       } 
-    } 
+    }
+    if(this.activeRoomOfUsers[userId]) {
+      return {
+        success: false,
+        error: {reason: "user is currently a member of another room"}
+      }
+    }
     if(!this.activeRooms[roomId].memberUsers[userId]) {
       return {
         success: false, 
@@ -36,8 +72,10 @@ export class GameRoomManager implements IRoomManager {
       }
     }
     this.activeRooms[roomId].connectedUsers[ userId] = {username, id: userId }
+    this.activeRoomOfUsers[userId] = roomId
     return {
-      success: true
+      success: true,
+      activePlayers: Object.values(this.activeRooms[roomId].connectedUsers)
     }
   }
   
@@ -60,14 +98,17 @@ export class GameRoomManager implements IRoomManager {
       ownerUsername: getRoomResult.room.owner_name,
       ownerId: getRoomResult.room.owner_id,
       id: getRoomResult.room.id,
-      sessionChats: {},
+      sessionChats: [],
       memberUsers: getRoomMembersResult.members
     }
+    //prevent duplication incase room is created multiple times at once 
+    if(!this.activeRooms[roomId]) {
+      this.activeRooms[roomId] = activeRoom
+    } 
 
-    this.activeRooms[roomId] = activeRoom
     return {
       success: true,
-      activeRoom,
+      activeRoom: this.activeRooms[roomId],
     }
   }
 

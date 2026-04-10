@@ -21,14 +21,14 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
     res.cookie("access-token", result.accessToken, {
       httpOnly: true,       
       secure: process.env.NODE_ENV === "production",     
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000 
     })
 
     res.cookie("refresh-token", result.refreshToken, {
       httpOnly: true,       
       secure: process.env.NODE_ENV === "production",
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000 
     })
 
@@ -60,16 +60,16 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
 
     if(loginResult.success) {
       res.cookie("access-token", loginResult.accessToken, {
-        httpOnly: true,       
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         secure: process.env.NODE_ENV === "production",     
-        sameSite: "none",
         maxAge: 60 * 60 * 1000 
       })
 
       res.cookie("refresh-token", loginResult.refreshToken, {
         httpOnly: true,       
         secure: process.env.NODE_ENV === "production",     
-        sameSite: "none",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 60 * 60 * 1000 
       })
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { io } from "socket.io-client"
   import { onMount } from "svelte"
-
-  const SERVERURL = import.meta.env.VITE_SERVER_URL
-  let roomId = $state("XKCD42");
+  import { page } from "$app/state"
+  import { chatMessages } from "./state-stores"
+  // import { createSocketConnection } from "./socket"
+  let roomId =  page.params.roomId 
   let ping = $state(20);
   
 
@@ -27,10 +27,7 @@
   ]);
 
   // ── Chat ──
-  let chatMessages = $state([
-    { author: "Mira",   text: "ready soon!" },
-    { author: "Aldric", text: "no rush"     },
-  ]);
+  ;
   let chatInput = $state("");
 
   // ── Status ──
@@ -52,8 +49,7 @@
 
   function sendChat() {
     const trimmed = chatInput.trim();
-    if (!trimmed) return;
-    chatMessages = [...chatMessages, { author: "You", text: trimmed }];
+
     chatInput = "";
   }
 
@@ -62,12 +58,7 @@
   }
 
   onMount(async() => {
-    const socket = io(`${SERVERURL}/room`, {
-      withCredentials: true,
-    })
-    socket.on("connect_error", (error) => {
-      console.log(error)
-    } )
+    // createSocketConnection(page.params.roomId!)
   })
 </script>
 
@@ -151,10 +142,10 @@
       <div class="flex-1 flex flex-col p-[14px] overflow-y-auto gap-[10px] justify-between scrollbar-thin">
         <p class="font-['Micro_5'] text-[22px] tracking-[3px] text-[#6b5840] mb-[4px] shrink-0">CHAT</p>
         <div class="flex-1 overflow-y-auto flex flex-col gap-[6px] pb-[8px] scrollbar-thin">
-          {#each chatMessages as msg}
+          {#each $chatMessages as msg}
             <div class="text-[14px] leading-[1.5]">
-              <span class="font-['Micro_5'] text-[24px] text-[#7a5c3e] mr-[5px]">{msg.author}:</span>
-              <span class="text-[#2a1f0e]">{msg.text}</span>
+              <span class="font-['Micro_5'] text-[24px] text-[#7a5c3e] mr-[5px]">{msg.username}:</span>
+              <span class="text-[#2a1f0e]">{msg.message}</span>
             </div>
           {/each}
         </div>

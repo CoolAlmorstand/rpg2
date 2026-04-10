@@ -73,7 +73,15 @@ export type IDBIsUserAMemberOfRoomResult = {
   error: {reason: string}
 }
 
+export type IDBSaveRoomSessionChatsResult = {
+  success: true;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
 export interface IDBManager {
+  saveRoomSessionChats(roomId: string, message: string, sender: {username: string, id: string}): Promise<IDBSaveRoomSessionChatsResult>;
   isUserAMemberOfRoom(userId: string, roomId: string): Promise<IDBIsUserAMemberOfRoomResult>;
   getAvailableMaps(): Promise<IMapPreview[]>; 
   createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse>;

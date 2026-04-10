@@ -35,6 +35,7 @@ export type IRoomJoinRoomResult = {
 
 export type IRoomJoinActiveRoomResult = {
   success: true;
+  activePlayers: {username: string, id: string}[]; 
 } | {
   success: false;
   error: {reason: string}
@@ -48,8 +49,22 @@ export type IRoomStartRoomSessionResult = {
   error: {reason: string}
 }
 
+export type IRoomSendChatResult = {
+  success: true;
+  indexOrder: number;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
+export type getActiveRoomOfUserResult = {
+  roomId: string | null;
+}
+
 export interface IRoomManager {
+  sendChatToRoom(roomId: string, message: string, sender: {username: string; id: string}): Promise<IRoomSendChatResult>;
   activeRooms: Record<string, IActiveRoom>
+  getActiveRoomOFUser(userId: string): getActiveRoomOfUserResult
   getRoomsOfUser(userId: string): Promise<IRoomGetRoomsOfUserResult>
   joinRoom(userId: string, roomId: string): Promise<IRoomJoinRoomResult>
   joinActiveRoom(userId: string, username: string, roomId: string ): Promise<IRoomJoinActiveRoomResult>;
