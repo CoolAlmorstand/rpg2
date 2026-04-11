@@ -11,7 +11,8 @@ export type ISocketManagerConnectResult = {
 
 export type ISocketManagerSendChatResult = {
   success: true;
-  timeSent: string;
+  indexOrder: number;
+  sender: string;
 } | {
   success: false;
   error: {reason: string}

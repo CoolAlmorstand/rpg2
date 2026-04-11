@@ -1,6 +1,6 @@
 import express from "express";
 import { Router } from "express"
-import { IRoomManager, IRoomCreateRoomData } from "../interfaces/IRoomManeger";
+import { IRoomManager, IRoomCreateRoomData } from "../interfaces/room-manager/IRoomManeger";
 import { IAPIGetRoomsOfUserResponse, IAPIJoinRoomResponse, IAPIJoinRoom, IAPICreateRoomData, IAPICreateRoomResponse } from "@terabithia/shared-types";
 import { IAuthMiddleware } from "../interfaces/middleware/auth-middleware.ts";
 
@@ -68,7 +68,7 @@ export function initializeRoomRoutes(gameRoomManager: IRoomManager, authMiddlewa
     
   router.post("/join-room", authMiddleware.validtateToken, express.json(), async(req, res) => { 
     const requestData: IAPIJoinRoom = req.body
-    const joinRoomResult = await roomManager.joinRoom(req.user.id, requestData.roomId) 
+    const joinRoomResult = await roomManager.joinRoom(req.user.id, req.user.username, requestData.roomId) 
 
     if(!joinRoomResult.success) {
       const response: IAPIJoinRoomResponse = {

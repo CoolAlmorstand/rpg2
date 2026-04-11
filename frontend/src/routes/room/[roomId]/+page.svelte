@@ -1,13 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { page } from "$app/state"
-  import { chatMessages } from "./state-stores"
-  // import { createSocketConnection } from "./socket"
+  import { sessionChatMessages, apppendToSessionChat } from "./state-stores"
+  import type { ISocketManagerSendChatResult } from "./interface/ISocketManager.ts"
+  import { SocketManager } from "./socket.ts"
   let roomId =  page.params.roomId 
-  let ping = $state(20);
-  
+  let ping = $state(20);  
+  const socketManager = new SocketManager()
 
-  // ── Tab system ──
   type Tab = { id: string; label: string };
   const tabs: Tab[] = [
     { id: "players", label: "PLAYERS" },
@@ -47,8 +47,17 @@
     console.log("enter game");
   }
 
-  function sendChat() {
+  async function sendChat() {
     const trimmed = chatInput.trim();
+    console.log(`try: ${trimmed}`)
+    const sendChatResult: ISocketManagerSendChatResult = await socketManager.sendChat(trimmed)
+
+    if(!sendChatResult.success) {
+      alert(sendChatResult.error.reason)
+      return
+    }
+    
+    apppendToSessionChat(trimmed, sendChatResult.sender, sendChatResult.indexOrder)
 
     chatInput = "";
   }
@@ -58,7 +67,11 @@
   }
 
   onMount(async() => {
-    // createSocketConnection(page.params.roomId!)
+    const connectResult = await socketManager.connectAndJoinRoom(page.params.roomId!)
+
+    if(!connectResult.success) {
+      alert(`falied to join room: ${connectResult.error.reason} `)
+    }
   })
 </script>
 
@@ -137,14 +150,13 @@
           </div>
         </div>
       </div>
-
     {:else if activeTab === "chat"}
       <div class="flex-1 flex flex-col p-[14px] overflow-y-auto gap-[10px] justify-between scrollbar-thin">
         <p class="font-['Micro_5'] text-[22px] tracking-[3px] text-[#6b5840] mb-[4px] shrink-0">CHAT</p>
         <div class="flex-1 overflow-y-auto flex flex-col gap-[6px] pb-[8px] scrollbar-thin">
-          {#each $chatMessages as msg}
+          {#each $sessionChatMessages.filter(msg => msg != null) as msg}
             <div class="text-[14px] leading-[1.5]">
-              <span class="font-['Micro_5'] text-[24px] text-[#7a5c3e] mr-[5px]">{msg.username}:</span>
+              <span class="font-['Micro_5'] text-[24px] text-[#7a5c3e] mr-[5px]">{msg.sender}:</span>
               <span class="text-[#2a1f0e]">{msg.message}</span>
             </div>
           {/each}

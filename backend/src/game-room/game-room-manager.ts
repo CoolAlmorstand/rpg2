@@ -1,6 +1,5 @@
 import { IDBManager } from "../interfaces/IDBManager"
-import type { IGame } from "../interfaces/IGame"  
-import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult, getActiveRoomOfUserResult } from "../interfaces/room-manager/IRoomManeger"
+import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult } from "../interfaces/room-manager/IRoomManeger"
 import type { IActiveRoom } from "../interfaces/room-manager/IActiveRoom"
 
 export class GameRoomManager implements IRoomManager {
@@ -9,7 +8,7 @@ export class GameRoomManager implements IRoomManager {
   activeRooms: Record<string, IActiveRoom> = {}
   //a quick cache of what active room a user is on
   //key is userId val is roomId
-  activeRoomOfUsers: Record<string, string>
+  activeRoomOfUsers: Record<string, string> = {}
 
   constructor(dbManager: IDBManager) {
     this.dbManager = dbManager
@@ -23,10 +22,8 @@ export class GameRoomManager implements IRoomManager {
     }
   }
   
-  getActiveRoomOFUser(userId: string): getActiveRoomOfUserResult {
-    return {
-      roomId: this.activeRoomOfUsers[userId] 
-    }
+  getActiveRoomOFUser(userId: string): string | null { 
+    return this.activeRoomOfUsers[userId] 
   }
 
   async sendChatToRoom(roomId: string, message: string, sender: { username: string; id: string }): Promise<IRoomSendChatResult> {
@@ -44,9 +41,14 @@ export class GameRoomManager implements IRoomManager {
 
     return {
       success: true,
-      indexOrder: this.activeRooms[roomId].sessionChats.length - 1 
+      indexOrder: this.activeRooms[roomId].sessionChats.length  - 1
     }
-  } 
+  }
+
+  kickPlayerFromActiveRoom(userId: string, roomId: string) {
+    delete this.activeRoomOfUsers[userId]
+    delete this.activeRooms[roomId].connectedUsers[userId]
+  }
 
   findRoom(roomId: string) {
     return this.activeRooms[roomId]
@@ -112,7 +114,7 @@ export class GameRoomManager implements IRoomManager {
     }
   }
 
-  async joinRoom(userId: any, roomId: any): Promise<IRoomJoinRoomResult> {
+  async joinRoom(userId: string, username: string, roomId: string): Promise<IRoomJoinRoomResult> {
     const joinUserResult = await this.dbManager.joinUserToRoom(userId, roomId)
     
     if(!joinUserResult.success) {
@@ -128,6 +130,10 @@ export class GameRoomManager implements IRoomManager {
         success: false,
         error: getRoomInfo.error
       }
+    }
+
+    if(this.activeRooms[roomId]) {
+      this.activeRooms[roomId].memberUsers[userId] = {username, id: userId }
     }
 
     return {

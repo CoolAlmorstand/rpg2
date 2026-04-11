@@ -1,7 +1,8 @@
 
 import { resolve } from "$app/paths";
-import type { ISocketJoinRoomRequest, ISocketJoinRoomResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type { ISocketJoinRoomRequest, ISocketJoinRoomResponse, ISocketRoomReceiveChat, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
 import { io, Socket } from "socket.io-client"
+import { sessionChatMessages, apppendToSessionChat } from "./state-stores";
 const SERVERURL = import.meta.env.VITE_SERVER_URL
 
 import type { ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult } from "./interface/ISocketManager";
@@ -42,10 +43,15 @@ export class SocketManager implements ISocketManager {
 
       this.socket.once("connect_error", onConnectError)
       this.socket.once("connect", onConnect)
+      this.socket.on("receive-chat", (data) => this.receiveChat(data))
       this.socket.connect()
     })
   }
   
+  receiveChat(data: ISocketRoomReceiveChat) {
+    apppendToSessionChat(data.message, data.sender, data.indexOrder)
+  }
+
   async sendChat(message: string): Promise<ISocketManagerSendChatResult> {
     const data: ISocketRoomSendChatRequest  = {
       message
@@ -60,7 +66,8 @@ export class SocketManager implements ISocketManager {
     else {
       return {
         success: true,
-        timeSent: response.timeSent
+        sender: response.sender,
+        indexOrder: response.indexOrder
       }
   }
   } 

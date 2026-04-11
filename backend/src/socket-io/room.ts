@@ -1,6 +1,6 @@
 
-import type {Socket, Namespace, Server } from "socket.io"
-import type { ISocketDataOnHandshake, ISocketJoinRoomRequest, ISocketJoinRoomResponse, ISocketResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type {Socket, Namespace, Server, DisconnectReason } from "socket.io"
+import type { ISocketDataOnHandshake, ISocketJoinRoomRequest, ISocketRoomReceiveChat, ISocketJoinRoomResponse, ISocketResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
 
 import { IRoomManager } from "../interfaces/room-manager/IRoomManeger";
 import { ISocketAuthMiddleware } from "../interfaces/socket-io/middlerware/auth";
@@ -29,14 +29,31 @@ export class RoomSocket {
 
     this.connectedUsers[socket.id] = user
     console.log(`user:${user.username} connected`)
-
+  
     socket.on("join-room", 
       (
         data: ISocketJoinRoomRequest, 
         responseCallback: ISocketResponse<ISocketJoinRoomResponse>
-      ) => this.joinRoom(socket, responseCallback, data) )
+      ) => this.joinRoom(socket, responseCallback, data) 
+    )
+    socket.on("send-message", 
+      ( 
+      data: ISocketRoomSendChatRequest,
+      responseCallback: ISocketResponse<ISocketRoomSendChatResponse>
+      ) => this.sendChat(socket, data, responseCallback) 
+    )
+    socket.on("disconnect", (reason) => this.disconnect(socket, reason) )
   }
   
+  async disconnect(socket: Socket, reason: DisconnectReason) {
+    const user = this.connectedUsers[socket.id]
+    const roomId = this.roomManager.getActiveRoomOFUser(user.id)
+    if(roomId) {
+      delete this.connectedUsers[socket.id]
+      this.roomManager.kickPlayerFromActiveRoom(user.id, roomId)
+    }
+  }
+
   async sendChat(socket: Socket, data: ISocketRoomSendChatRequest, responseCallback: ISocketResponse<ISocketRoomSendChatResponse>) {
     const user = this.connectedUsers[socket.id]
     if(!user) {
@@ -46,7 +63,7 @@ export class RoomSocket {
       })
       return
     }
-    const {roomId} = this.roomManager.getActiveRoomOFUser(user.id)
+    const roomId = this.roomManager.getActiveRoomOFUser(user.id)
     if(!roomId) {
       responseCallback({
         success: false,
@@ -64,9 +81,16 @@ export class RoomSocket {
       })
       return
     }
+    const messageBroadcastData:ISocketRoomReceiveChat = {
+      message: data.message,
+      sender: user.username,
+      indexOrder: sendChatResult.indexOrder
+    }
+    socket.to(roomId).emit("receive-chat", messageBroadcastData)
 
     responseCallback({
       success: true,
+      sender: user.username,
       indexOrder: sendChatResult.indexOrder
     })
     
@@ -94,6 +118,7 @@ export class RoomSocket {
       })
       return
     }
+    socket.join(data.roomId)
     responseCallback({
       success: true,
       activePlayers: joinResult.activePlayers.map(user => user.username)
