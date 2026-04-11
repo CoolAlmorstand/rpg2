@@ -57,7 +57,15 @@ export type IRoomSendChatResult = {
   error: {reason: string}
 }
 
+export type IRoomSessionChats = {
+  message: string;
+  sender: {username: string; id: string};
+  indexOrder: number;
+}[]
+
+
 export interface IRoomManager {
+  getSessionChatsOfRoom(roomId: string): IRoomSessionChats; 
   kickPlayerFromActiveRoom(userId: string, roomId: string): void;
   sendChatToRoom(roomId: string, message: string, sender: {username: string; id: string}): Promise<IRoomSendChatResult>;
   activeRooms: Record<string, IActiveRoom>

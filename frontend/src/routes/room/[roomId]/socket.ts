@@ -1,11 +1,11 @@
 
 import { resolve } from "$app/paths";
-import type { ISocketJoinRoomRequest, ISocketJoinRoomResponse, ISocketRoomReceiveChat, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type {ISocketJoinRoomRequest, ISocketJoinRoomResponse, ISocketRoomGetSessionChatsRequest, ISocketRoomGetSessionChatsResponse, ISocketRoomReceiveChat, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
 import { io, Socket } from "socket.io-client"
 import { sessionChatMessages, apppendToSessionChat } from "./state-stores";
 const SERVERURL = import.meta.env.VITE_SERVER_URL
 
-import type { ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult } from "./interface/ISocketManager";
+import type { getSessionChatsResult, ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult } from "./interface/ISocketManager";
 
 export class SocketManager implements ISocketManager {
   socket: Socket; 
@@ -15,6 +15,24 @@ export class SocketManager implements ISocketManager {
       withCredentials: true,
     })
   } 
+  
+  async getSessionChats(): Promise<getSessionChatsResult> {
+    const requestData: ISocketRoomGetSessionChatsRequest = {
+
+    }
+    const getSessionChatsResponse: ISocketRoomGetSessionChatsResponse = await this.socket.emitWithAck("get-session-chats", requestData) 
+    if(!getSessionChatsResponse.success) {
+      return {
+        success: false,
+        error: getSessionChatsResponse.error
+      }   
+    }
+
+    return {
+        success: true,
+        sessionChats: getSessionChatsResponse.sessionChats
+      }
+  }
 
   async connectAndJoinRoom(roomId: string): Promise<ISocketManagerConnectResult> {
     return new Promise((resolve) => {

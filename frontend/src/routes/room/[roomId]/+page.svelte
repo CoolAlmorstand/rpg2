@@ -46,6 +46,23 @@
     // TODO: enter game
     console.log("enter game");
   }
+  
+  async function switchTab(tabId: string) {
+    console.log('a')
+    if(tabId == "chat") {
+      activeTab = tabId
+      console.log('b')
+      const getSessionChatsResults = await socketManager.getSessionChats()
+      console.log(getSessionChatsResults)
+      if(!getSessionChatsResults.success) {
+        alert("failed to get chats")
+        return
+      }
+      for(const chat of getSessionChatsResults.sessionChats) {
+        apppendToSessionChat(chat.message, chat.sender, chat.indexOrder )
+      }
+    }
+  }
 
   async function sendChat() {
     const trimmed = chatInput.trim();
@@ -99,7 +116,7 @@
         role="tab"
         aria-selected={activeTab === tab.id}
         class="snap-start shrink-0 bg-none border-none border-r border-[#c4a97a] border-b-[3px] px-[18px] py-[10px] font-['Micro_5'] text-base tracking-[2px] cursor-pointer transition-all whitespace-nowrap -mb-[2px] {activeTab === tab.id ? 'text-[#2a1f0e] bg-[#fdf8d4] border-b-[#7a5c3e]' : 'text-[#6b5840] border-b-transparent hover:bg-[#9B7653]/10 hover:text-[#2a1f0e]'}"
-        onclick={() => activeTab = tab.id}
+        onclick={() => switchTab(tab.id)}
       >
         {tab.label}
       </button>

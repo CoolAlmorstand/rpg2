@@ -1,5 +1,5 @@
 import { IDBManager } from "../interfaces/IDBManager"
-import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult } from "../interfaces/room-manager/IRoomManeger"
+import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult, IRoomSessionChats } from "../interfaces/room-manager/IRoomManeger"
 import type { IActiveRoom } from "../interfaces/room-manager/IActiveRoom"
 
 export class GameRoomManager implements IRoomManager {
@@ -14,6 +14,14 @@ export class GameRoomManager implements IRoomManager {
     this.dbManager = dbManager
   }
   
+  getSessionChatsOfRoom(roomId: string): IRoomSessionChats {
+    const chats = this.activeRooms[roomId].sessionChats
+    if(!chats) {
+      []
+    }
+    return chats 
+  }
+
   checkIfRoomExist(roomId: string ): boolean {
     if(this.activeRooms[roomId]){
       return true
@@ -36,6 +44,7 @@ export class GameRoomManager implements IRoomManager {
 
     this.activeRooms[roomId].sessionChats.push({
       sender,
+      indexOrder: this.activeRooms[roomId].sessionChats.length  - 1,
       message,
     }) 
 

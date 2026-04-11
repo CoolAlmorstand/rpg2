@@ -1,12 +1,9 @@
 
 import type {Socket, Namespace, Server, DisconnectReason } from "socket.io"
-import type { ISocketDataOnHandshake, ISocketJoinRoomRequest, ISocketRoomReceiveChat, ISocketJoinRoomResponse, ISocketResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type { ISocketDataOnHandshake, ISocketRoomGetSessionChatsRequest, ISocketJoinRoomRequest, ISocketRoomGetSessionChatsResponse, ISocketRoomReceiveChat, ISocketJoinRoomResponse, ISocketResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
 
 import { IRoomManager } from "../interfaces/room-manager/IRoomManeger";
 import { ISocketAuthMiddleware } from "../interfaces/socket-io/middlerware/auth";
-import { suite } from "node:test";
-import { response } from "express";
-import { send } from "node:process";
 
 export class RoomSocket {
   io: Namespace;
@@ -42,6 +39,13 @@ export class RoomSocket {
       responseCallback: ISocketResponse<ISocketRoomSendChatResponse>
       ) => this.sendChat(socket, data, responseCallback) 
     )
+    socket.on("get-session-chats", 
+      ( 
+      data: ISocketRoomGetSessionChatsRequest,
+      responseCallback: ISocketResponse<ISocketRoomGetSessionChatsResponse>
+      ) => this.getSessioChats(socket, data, responseCallback) 
+    )
+
     socket.on("disconnect", (reason) => this.disconnect(socket, reason) )
   }
   
@@ -52,6 +56,37 @@ export class RoomSocket {
       delete this.connectedUsers[socket.id]
       this.roomManager.kickPlayerFromActiveRoom(user.id, roomId)
     }
+  }
+  
+  getSessioChats(socket: Socket, data: ISocketRoomGetSessionChatsRequest, responseCallback: ISocketResponse<ISocketRoomGetSessionChatsResponse>) {
+    const user = this.connectedUsers[socket.id]
+    if(!user) {
+      responseCallback({
+        success: false,
+        error: {reason: "user info not found"}
+      })
+      return
+    }
+
+    const roomId = this.roomManager.getActiveRoomOFUser(user.id)
+    if(!roomId) {
+      responseCallback({
+        success: false,
+        error: {reason: "failed to fetch session chats cant get your roomId"}
+      })
+      return
+    }
+    const sessionChats = this.roomManager.getSessionChatsOfRoom(roomId)
+    responseCallback({
+      success: true,
+      sessionChats: sessionChats.map(chat => {
+        return {
+          message: chat.message,
+          sender: chat.sender.username,
+          indexOrder: chat.indexOrder,
+        }
+      }) 
+    })     
   }
 
   async sendChat(socket: Socket, data: ISocketRoomSendChatRequest, responseCallback: ISocketResponse<ISocketRoomSendChatResponse>) {

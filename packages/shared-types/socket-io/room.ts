@@ -6,6 +6,18 @@ export type ISocketRoomSendChatRequest = {
   message: string;
 }
 
+export type ISocketRoomGetSessionChatsResponse = {
+  success: true;
+  sessionChats: {sender: string; message: string; indexOrder: number}[];
+} | {
+  success: false;
+  error: {reason: string};
+}
+
+
+//for potential feture use
+export type ISocketRoomGetSessionChatsRequest = {
+}
 
 export type ISocketRoomSendChatResponse = {
   success: true;
