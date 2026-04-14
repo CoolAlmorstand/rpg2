@@ -28,7 +28,7 @@
   })
 
   function enterRoom(roomId: string) {
-   goto(`/room/${roomId}`) 
+   goto(`/room2?roomId=${roomId}&tab=chats`) 
   }
   async function createNewRoom() {
     createRoomDialog.open() 

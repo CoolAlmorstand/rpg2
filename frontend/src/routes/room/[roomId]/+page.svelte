@@ -4,6 +4,7 @@
   import { sessionChatMessages, apppendToSessionChat } from "./state-stores"
   import type { ISocketManagerSendChatResult } from "./interface/ISocketManager.ts"
   import { SocketManager } from "./socket.ts"
+
   let roomId =  page.params.roomId 
   let ping = $state(20);  
   const socketManager = new SocketManager()

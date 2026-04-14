@@ -44,13 +44,13 @@ export class GameRoomManager implements IRoomManager {
 
     this.activeRooms[roomId].sessionChats.push({
       sender,
-      indexOrder: this.activeRooms[roomId].sessionChats.length  - 1,
+      indexOrder: this.activeRooms[roomId].sessionChats.length,
       message,
     }) 
 
     return {
       success: true,
-      indexOrder: this.activeRooms[roomId].sessionChats.length  - 1
+      indexOrder: this.activeRooms[roomId].sessionChats.length
     }
   }
 
