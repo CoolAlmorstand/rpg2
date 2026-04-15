@@ -2,7 +2,7 @@
 
 
 import type {ISocketRoomNewPlayerJoin, IRoomSocketEventsFromClient, IRoomSocketEventsFromServer, ISocketRoomReceiveChat } from "@terabithia/shared-types"
-import type { ISocketManagerEventTypes, getSessionChatsResult, ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult } from "./interface/ISocketManager";
+import type { ISocketManagerEventTypes, getSessionChatsResult, ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult, ISocketManagerGetActivePlayersResult } from "./interface/ISocketManager";
 
 import { io, Socket } from "socket.io-client"
 import mitt from "mitt"
@@ -34,6 +34,12 @@ export class SocketManager implements ISocketManager {
         sessionChats: getSessionChatsResponse.sessionChats
       }
   }
+  
+  async getActivePlayers(): Promise<ISocketManagerGetActivePlayersResult> {
+    const player = await this.socket.emitWithAck("get-active-players-of-room", {})
+    console.log(player)
+    return player
+  }
 
   async connectAndJoinRoom(roomId: string): Promise<ISocketManagerConnectResult> {
     return new Promise((resolve) => {
@@ -55,7 +61,7 @@ export class SocketManager implements ISocketManager {
         if (!response.success) {
           resolve({ success: false, error: response.error })
         } else {
-          resolve({ success: true, activePlayers: response.activePlayers })
+          resolve({ success: true, })
         }
       }
 

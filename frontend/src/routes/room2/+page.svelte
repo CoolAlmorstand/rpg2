@@ -49,6 +49,7 @@
     if(!connectResult.success) {
       alert(`falied to join room: ${connectResult.error.reason} `)
       connectionStatus = "disconnected"
+      return
     }
     
     connectionStatus = "connected"
@@ -94,7 +95,7 @@
         <span class="font-['Micro_5'] text-xl text-[#6b5840] tracking-[2px]">{connectionStatus}</span>
       </div>
     {:else if activeTab === "players"}
-      <Players /> 
+      <Players socketManager={socketManager} /> 
     {:else if activeTab === "status"}
       
     {:else if activeTab === "chats"}

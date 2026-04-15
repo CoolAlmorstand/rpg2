@@ -1,4 +1,4 @@
-import { DefaultEventsMap, Socket } from "socket.io";
+import type { DefaultEventsMap, Socket } from "socket.io";
 
 export type IRoomSocketEventsFromClient = {
   "get-session-chats": (
@@ -14,14 +14,23 @@ export type IRoomSocketEventsFromClient = {
       res: ISocketJoinRoomResponse
     ) => void
   ) => void
-  ;
+  
   "send-message": (
     req: ISocketRoomSendChatRequest,
     ack: (
       res: ISocketRoomSendChatResponse
     ) => void
   ) => void;
+
+  "get-active-players-of-room": (
+    req: {},
+    ack: (
+      res: IRoomSocketGetActivePlayersOfRoomResponse
+    ) => void
+  ) => void;
 }
+
+export type IRoomSocketGetActivePlayersOfRoomResponse = {username: string}[]
 
 export type IRoomSocketEventsFromServer = {
   "receive-chat": (data: ISocketRoomReceiveChat) => void;
@@ -30,7 +39,6 @@ export type IRoomSocketEventsFromServer = {
 
 export type IRoomSocketDataOnHandshake = {
   user: {username: string, id: string}
-  roomId: string
 }
 
 export type IRoomSocket = Socket<
@@ -86,10 +94,7 @@ export type ISocketRoomOnPlayerJoin = {
 }
 
 export type ISocketJoinRoomResponse = {
-  success: true;
-  //array of usernames
-  activePlayers: string[];
-  
+  success: true; 
 } | {
   success: false;
   error: {reason: string};

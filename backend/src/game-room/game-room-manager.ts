@@ -1,6 +1,8 @@
 import { IDBManager } from "../interfaces/IDBManager"
-import type { IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult, IRoomSessionChats } from "../interfaces/room-manager/IRoomManeger"
+import type { IRoomGetActivePlayers, IRoomCreateRoomData, IRoomCreateNewRoomResult, IRoomGetRoomsOfUserResult, IRoomManager, IRoomJoinRoomResult, IRoomJoinActiveRoomResult, IRoomStartRoomSessionResult, IRoomSendChatResult, IRoomSessionChats } from "../interfaces/room-manager/IRoomManeger"
 import type { IActiveRoom } from "../interfaces/room-manager/IActiveRoom"
+
+
 
 export class GameRoomManager implements IRoomManager {
   dbManager: IDBManager
@@ -13,7 +15,15 @@ export class GameRoomManager implements IRoomManager {
   constructor(dbManager: IDBManager) {
     this.dbManager = dbManager
   }
-  
+ 
+  getActivePlayersOfRoom(roomId: string): IRoomGetActivePlayers {
+    console.log(`roomId: ${roomId}`)
+    if(!this.activeRooms[roomId]) {
+      return {}
+    } 
+    return this.activeRooms[roomId].connectedUsers 
+  }
+
   getSessionChatsOfRoom(roomId: string): IRoomSessionChats {
     const chats = this.activeRooms[roomId].sessionChats
     if(!chats) {
@@ -82,15 +92,22 @@ export class GameRoomManager implements IRoomManager {
         error: {reason: "user is not a member of room"}
       }
     }
-    this.activeRooms[roomId].connectedUsers[ userId] = {username, id: userId }
+    this.activeRooms[roomId].connectedUsers[userId] = {username, id: userId }
     this.activeRoomOfUsers[userId] = roomId
     return {
       success: true,
-      activePlayers: Object.values(this.activeRooms[roomId].connectedUsers)
     }
   }
-  
+   
   async startRoomSession(roomId: string): Promise<IRoomStartRoomSessionResult> {
+
+    if(this.activeRooms[roomId]) {
+      return {
+        success: true,
+        activeRoom: this.activeRooms[roomId],
+      }
+    }
+
     const getRoomResult = await this.dbManager.getRoomFromId(roomId)
 
     if(!getRoomResult.success) {

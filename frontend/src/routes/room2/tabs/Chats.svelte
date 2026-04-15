@@ -4,7 +4,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import type { ISocketManager } from "../interface/ISocketManager"
-    import { apppendToSessionChat } from "../state-stores";
 
   const { socketManager } : {
     socketManager: ISocketManager

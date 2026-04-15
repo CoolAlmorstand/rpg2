@@ -1,20 +1,35 @@
 
 
 <script lang="ts">
+  import messageIcon from "$lib/assets/message-icon.png"
+  import type { ISocketManager } from "../interface/ISocketManager.ts"; 
+  import { onMount } from "svelte"
 
-  import { ISocketManager } from "../interface/ISocketManager"; 
 
   const { socketManager }: {
     socketManager: ISocketManager 
   } = $props()
 
-  const activePlayers = $state([
-    {name: "mildred"},
-    {name: "jake"},
-    {name: "iahra"}
+  let activePlayers: {username: string}[] = $state([
   ])
 
-  socketManager.on
+  socketManager.event.on("new-player-join", (data) => {
+    activePlayers.push(data)
+  })
+
+  socketManager.event.on("player-leave", (data) => {
+    for(let i = 0; i < activePlayers.length; i++) {
+      const player = activePlayers[i]
+      if(player.username == data.username) {
+        activePlayers.splice(i, 1)
+      }
+    }
+  })
+
+  onMount( async() => {
+    activePlayers = await socketManager.getActivePlayers()
+  })
+
 </script>
 
 <div class="flex-1 flex flex-col p-[14px] overflow-y-auto gap-[10px] scrollbar-thin">
@@ -22,9 +37,8 @@
   <ul class="list-none m-0 p-0 flex flex-col gap-[8px]">
     {#each activePlayers as p}
       <li class="flex items-center gap-[8px] px-[10px] py-[8px] border border-[#9B7653] rounded-[6px] bg-[#ede8b8]">
-        <span class="w-[8px] h-[8px] rounded-full shrink-0" style="background:{p.ready ? '#4ade80' : '#6b7280'}"></span>
-        <span class="flex-1 text-[15px]">{p.name}</span>
-        <span class="font-['Micro_5'] text-[20px] tracking-[1px] text-[#6b5840]">{p.ready ? "ready" : "waiting"}</span>
+        <span class="flex-1 text-[15px]">{p.username}</span>
+        <img class="max-w-6" src={messageIcon} />
       </li>
     {/each}
   </ul>

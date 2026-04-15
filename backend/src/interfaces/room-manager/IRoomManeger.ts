@@ -35,7 +35,6 @@ export type IRoomJoinRoomResult = {
 
 export type IRoomJoinActiveRoomResult = {
   success: true;
-  activePlayers: {username: string, id: string}[]; 
 } | {
   success: false;
   error: {reason: string}
@@ -63,8 +62,11 @@ export type IRoomSessionChats = {
   indexOrder: number;
 }[]
 
+export type IRoomGetActivePlayers = Record<string, {username: string; id: string}>
+  
 
 export interface IRoomManager {
+  getActivePlayersOfRoom(roomId: string): IRoomGetActivePlayers; 
   getSessionChatsOfRoom(roomId: string): IRoomSessionChats; 
   kickPlayerFromActiveRoom(userId: string, roomId: string): void;
   sendChatToRoom(roomId: string, message: string, sender: {username: string; id: string}): Promise<IRoomSendChatResult>;

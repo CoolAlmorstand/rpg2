@@ -1,5 +1,6 @@
 import type { Namespace, DisconnectReason } from "socket.io"
-import type { IRoomSocket, IRoomSocketEventsFromClient, IRoomSocketEventsFromServer, ISocketDataOnHandshake, ISocketRoomGetSessionChatsRequest, ISocketJoinRoomRequest, ISocketRoomGetSessionChatsResponse, ISocketRoomReceiveChat, ISocketJoinRoomResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type { IRoomSocket, IRoomSocketGetActivePlayersOfRoomResponse, IRoomSocketEventsFromClient, IRoomSocketEventsFromServer, ISocketRoomGetSessionChatsRequest, ISocketJoinRoomRequest, ISocketRoomGetSessionChatsResponse, ISocketRoomReceiveChat, ISocketJoinRoomResponse, ISocketRoomSendChatRequest, ISocketRoomSendChatResponse } from "@terabithia/shared-types"
+import type { ExtendedError } from "socket.io";
 import { Server } from "socket.io"
 
 import { IRoomManager } from "../interfaces/room-manager/IRoomManeger";
@@ -7,8 +8,8 @@ import { ISocketAuthMiddleware } from "../interfaces/socket-io/middlerware/auth"
 
 export class RoomSocket {
   io: Namespace<IRoomSocketEventsFromClient, IRoomSocketEventsFromServer>;
-  //key is the connection id 
-  connectedUsers: Record<string, {username: string; id: string;}> = {};
+  //key is the user id 
+  connectedUsers: Record<string, IRoomSocket> = {};
   roomManager: IRoomManager; 
 
   constructor(io: Server, roomManager: IRoomManager, authMiddleware: ISocketAuthMiddleware ) {
@@ -16,16 +17,26 @@ export class RoomSocket {
     this.io = io.of("/room")
     //auth middlerware uses acces token to verify indenty then attaches user info to socket.data
     this.io.use((socket, next) => authMiddleware.validateToken(socket, next))
+    this.io.use((socket, next) => this.preventDoubleConnections(socket, next))
     this.io.on("connection", (socket) => {
       this.onConnect(socket) 
     })
   }
+  
+  private preventDoubleConnections(socket: IRoomSocket, next: (error?: ExtendedError) => void): void {
+    const user = socket.data.user
+    if(!this.connectedUsers[user.id]) {
+      next()
+    }
+    else {
+      next(new Error("another device is connected"))
+    }
+  }
 
   async onConnect(socket: IRoomSocket) {
-    const socketData: ISocketDataOnHandshake = socket.data
-    const user = socketData.user
+    const user = socket.data.user
     
-    this.connectedUsers[socket.id] = user
+    this.connectedUsers[user.id] = socket
     console.log(`user:${user.username} connected`)
 
     socket.on("join-room", async (data, ack) => {
@@ -35,6 +46,11 @@ export class RoomSocket {
     socket.on("send-message", async (data, ack) => {
       ack(await this.sendChat(socket, data)) 
     })
+
+    socket.on("get-active-players-of-room", (data, ack) => {
+      ack(this.getActivePlayersOfRoom(socket, data))
+    })
+
     socket.on("get-session-chats", async (data, ack) => {
       ack(this.getSessioChats(socket, data)) 
     })
@@ -43,14 +59,30 @@ export class RoomSocket {
   }
   
   async disconnect(socket: IRoomSocket, reason: DisconnectReason) {
-    const user = this.connectedUsers[socket.id]
+    const user = socket.data.user
     const roomId = this.roomManager.getActiveRoomOFUser(user.id)
+    delete this.connectedUsers[user.id]
     if(roomId) {
-      delete this.connectedUsers[socket.id]
       this.roomManager.kickPlayerFromActiveRoom(user.id, roomId)
     }
   }
   
+  getActivePlayersOfRoom(socket: IRoomSocket, data: {}): IRoomSocketGetActivePlayersOfRoomResponse {
+    const user = socket.data.user
+    const roomId = this.roomManager.getActiveRoomOFUser(user.id)
+    if(!roomId) { return [] }
+    const activePlayers = this.roomManager.getActivePlayersOfRoom(roomId)
+
+    const activePlayerArray: {username: string}[] = []
+    for(const player of Object.values(activePlayers)) {
+      if(player.username != user.username) {
+        activePlayerArray.push({username: player.username})
+      }
+    }
+
+    return activePlayerArray
+  }
+
   getSessioChats(socket: IRoomSocket, data: ISocketRoomGetSessionChatsRequest): ISocketRoomGetSessionChatsResponse {
     const user = socket.data.user 
     if(!user) {
@@ -81,7 +113,7 @@ export class RoomSocket {
   }
 
   async sendChat(socket: IRoomSocket, data: ISocketRoomSendChatRequest): Promise<ISocketRoomSendChatResponse> {
-    const user = this.connectedUsers[socket.id]
+    const user = socket.data.user 
     if(!user) {
       return {
         success: false,
@@ -121,6 +153,7 @@ export class RoomSocket {
 
   async joinRoom(socket: IRoomSocket, data: ISocketJoinRoomRequest): Promise<ISocketJoinRoomResponse> {
     const user = socket.data.user
+
     if(!this.roomManager.activeRooms[data.roomId]) {
       const createSessionResult = await this.roomManager.startRoomSession(data.roomId)
       if(!createSessionResult.success) {
@@ -143,7 +176,6 @@ export class RoomSocket {
 
     return {
       success: true,
-      activePlayers: joinResult.activePlayers.map(user => user.username)
     }
   }
 }

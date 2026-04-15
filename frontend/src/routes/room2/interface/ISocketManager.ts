@@ -4,7 +4,6 @@ import type { Emitter } from "mitt"
 
 export type ISocketManagerConnectResult = {
   success: true;
-  activePlayers: string[];
 } | {
   success: false;
   error: {reason: string};
@@ -30,11 +29,15 @@ export type getSessionChatsResult = {
 
 export type ISocketManagerEventTypes = {
   "chat-receive": {sender: string, message: string, indexOrder: number}
+  "player-leave": {username: string}, 
   "new-player-join": { username: string }
 }
 
+export type ISocketManagerGetActivePlayersResult = {username: string}[]
+
 export interface ISocketManager {
   event: Emitter<ISocketManagerEventTypes>
+  getActivePlayers(): Promise<ISocketManagerGetActivePlayersResult>
   getSessionChats(): Promise<getSessionChatsResult>;
   sendChat(message: string): Promise<ISocketManagerSendChatResult>;
   connectAndJoinRoom(roomId: string): Promise<ISocketManagerConnectResult>;
