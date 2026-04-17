@@ -1,0 +1,13 @@
+{
+  "name": "@terabithia/terrain-generator",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "types": "index.ts",
+  "dependencies": {
+    "simplex-noise": "^4.0.3"
+  }
+}

@@ -1,8 +1,8 @@
 
 
 
-import type {ISocketRoomNewPlayerJoin, IRoomSocketEventsFromClient, IRoomSocketEventsFromServer, ISocketRoomReceiveChat } from "@terabithia/shared-types"
-import type { ISocketManagerEventTypes, getSessionChatsResult, ISocketManager, ISocketManagerConnectResult, ISocketManagerSendChatResult, ISocketManagerGetActivePlayersResult } from "./interface/ISocketManager";
+import type { ISocketRoomNewPlayerJoin, IRoomSocketEventsFromClient, IRoomSocketEventsFromServer, ISocketRoomReceiveChat } from "@terabithia/shared-types"
+import type { IRoomSocketManagerSendChatResult, IRoomSocketManagerConnectResult, IRoomSocketManagerGetActivePlayersResult, IRoomSocketManager, IRoomSocketManagerEventTypes, IRoomGetSessionChatsResult } from "./interfaces/IRoomSocket.ts";
 
 import { io, Socket } from "socket.io-client"
 import mitt from "mitt"
@@ -10,8 +10,8 @@ import mitt from "mitt"
 const SERVERURL = import.meta.env.VITE_SERVER_URL
 
 
-export class SocketManager implements ISocketManager {
-  event = mitt<ISocketManagerEventTypes>()
+class RoomSocketManager implements IRoomSocketManager {
+  event = mitt<IRoomSocketManagerEventTypes>()
   socket: Socket<IRoomSocketEventsFromServer, IRoomSocketEventsFromClient>; 
   constructor() {
     this.socket = io(`${SERVERURL}/room`, {
@@ -20,7 +20,7 @@ export class SocketManager implements ISocketManager {
     })
   } 
   
-  async getSessionChats(): Promise<getSessionChatsResult> { 
+  async getSessionChats(): Promise<IRoomGetSessionChatsResult> { 
     const getSessionChatsResponse = await this.socket.emitWithAck("get-session-chats", {}) 
     if(!getSessionChatsResponse.success) {
       return {
@@ -35,13 +35,13 @@ export class SocketManager implements ISocketManager {
       }
   }
   
-  async getActivePlayers(): Promise<ISocketManagerGetActivePlayersResult> {
+  async getActivePlayers(): Promise<IRoomSocketManagerGetActivePlayersResult> {
     const player = await this.socket.emitWithAck("get-active-players-of-room", {})
     console.log(player)
     return player
   }
 
-  async connectAndJoinRoom(roomId: string): Promise<ISocketManagerConnectResult> {
+  async connectAndJoinRoom(roomId: string): Promise<IRoomSocketManagerConnectResult> {
     return new Promise((resolve) => {
 
       const cleanup = () => {
@@ -81,7 +81,7 @@ export class SocketManager implements ISocketManager {
     this.event.emit("new-player-join", data)
   }
 
-  async sendChat(message: string): Promise<ISocketManagerSendChatResult> { 
+  async sendChat(message: string): Promise<IRoomSocketManagerSendChatResult> { 
     const response = await this.socket.emitWithAck("send-message", {
       message
     })
@@ -102,5 +102,6 @@ export class SocketManager implements ISocketManager {
 }
 
 
-
-
+export function createRoomSocketManager() {
+  return new RoomSocketManager()
+}
