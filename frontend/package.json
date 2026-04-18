@@ -24,7 +24,10 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
+		"@terabithia/terrain-generator": "1.0.0",
 		"alea": "^1.0.1",
+		"backend": "^1.0.0",
+		"mitt": "^3.0.1",
 		"pixi.js": "^8.17.1",
 		"simplex-noise": "^4.0.3",
 		"socket.io-client": "^4.8.3"

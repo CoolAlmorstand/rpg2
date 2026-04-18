@@ -10,6 +10,10 @@ export type IGameSocketEventsFromClient = {
   ) => void; 
 }
 
+export type getGameDataReq = {
+
+}
+
 export type IGameSocketGetActivePlayersOfRoomResponse = {username: string}[]
 
 export type IRoomSocketEventsFromServer = {

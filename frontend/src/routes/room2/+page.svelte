@@ -9,7 +9,7 @@
   import Chats from "./tabs/Chats.svelte";
   import Players from "./tabs/Players.svelte";
 
-  import { SocketManager } from "./socket.ts"
+  import { createRoomSocketManager } from "$lib/sockets/room-socket"
   
   type IRoomConnectionStatus = "connected" | "connecting" | "reconnecting" | "disconnected" 
 
@@ -26,7 +26,7 @@
   let connectionStatus = $state<IRoomConnectionStatus>("disconnected")
   let ping = $state(20);  
   let pingColor = $derived(ping <= 20 ? "green" : "orange") 
-  const socketManager = new SocketManager()
+  const socketManager = createRoomSocketManager()
  
   function onBack() {
     // TODO: navigate back
@@ -34,8 +34,7 @@
   }
 
   function onEnterGame() {
-    // TODO: enter game
-    console.log("enter game");
+    goto("/game") 
   }
   
   async function switchTab(newTab: string) {
