@@ -1,17 +1,26 @@
 
 <script lang="ts">
+  import { MapRenderer } from "$lib/renderer/map-renderer/map-renderer";
   import { Renderer } from "$lib/renderer/renderer"
-  // import { createMap } from "@terabithia/terrain-generator" 
-  import { createMap } from "../../../../packages/terrain-generator/index.ts" 
+  import { TerrainGenerator } from "../../../../packages/terrain-generator/index.ts" 
+  import * as PIXI from "pixi.js"
   import { onMount } from "svelte";
 
   let container: HTMLDivElement
-  const renderer = new Renderer()
-
+  
   onMount(async() => {
-    const map = createMap("hiiii", 144, 320)
+    const screenSize = {width: container.clientWidth, height: container.clientHeight}
+
+    const pixiApp = new PIXI.Application()
+
+    const terrainGenerator = new TerrainGenerator("hello", 16)
+    const mapRender = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 6, screenSize )
+    const renderer = new Renderer(pixiApp, mapRender, screenSize)
+
     await renderer.init(container)
-    await renderer.renderMap(map)
+
+    renderer.renderMap()
+    renderer.startRenderLoop() 
   })
 </script>
 
