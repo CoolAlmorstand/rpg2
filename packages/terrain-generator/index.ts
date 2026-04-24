@@ -1,9 +1,17 @@
 import type { ILayer, IBiomeTypes, ITerrainMap } from "./types/types";
 import { generateChunkBiome } from "./generate-biomes/generate-biomes.ts"
 
+
+
+export type { IBiomeTypes }
+
+
+
 export interface ITerrainGenerator {
   generateChunk(x: number, y: number): ITerrainMap
 }
+
+
 
 export class TerrainGenerator implements ITerrainGenerator {
   seed: string;
@@ -13,9 +21,10 @@ export class TerrainGenerator implements ITerrainGenerator {
     this.chunkSize = chunkSize
   }
 
-  generateChunk(x: number, y: number): ITerrainMap {
+  generateChunk(chunkX: number, chunkY: number): ITerrainMap {
+    const biomes = this.generateChunkBiome(chunkX, chunkY) 
     return {
-      biomes: this.generateChunkBiome(x, y)
+      biomes,
     } 
   }
 

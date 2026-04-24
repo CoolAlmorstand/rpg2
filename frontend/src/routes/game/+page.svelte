@@ -14,12 +14,14 @@
     const pixiApp = new PIXI.Application()
 
     const terrainGenerator = new TerrainGenerator("hello", 16)
-    const mapRender = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 6, screenSize )
-    const renderer = new Renderer(pixiApp, mapRender, screenSize)
+    const mapRenderer = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 16, screenSize )
+    const renderer = new Renderer(pixiApp, mapRenderer, screenSize)
 
+    await mapRenderer.init()
     await renderer.init(container)
 
     renderer.renderMap()
+    renderer.mapRenderer.zoomMap(-0.2)
     renderer.startRenderLoop() 
   })
 </script>

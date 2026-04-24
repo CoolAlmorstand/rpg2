@@ -1,7 +1,11 @@
 import type { IMapRenderer } from "$lib/interfaces/IMapRenderer";
-import type { ITerrainGenerator } from "@terabithia/terrain-generator";
+import type { ITerrainGenerator, IBiomeTypes } from "@terabithia/terrain-generator";
 import * as PIXI from "pixi.js"
-
+import waterSprite from "$lib/assets/water.jpg"
+import grassSprite from "$lib/assets/grass.jpg"
+import forestImage from "$lib/assets/forest.jpg"
+import sandImage from "$lib/assets/sand.jpg"
+import snowImage from "$lib/assets/snow.jpg"
 
 const BIOME_COLORS: Record<string, string> = {
   plains:   "#7EC850",
@@ -13,9 +17,11 @@ const BIOME_COLORS: Record<string, string> = {
   valye:    "#9A9A9A",
 };
 
+
 export class MapRenderer implements IMapRenderer {  
   chunkSize: number;
   tileSize: number; 
+  tileSprites!: Record<IBiomeTypes, PIXI.Texture>
   renderer: PIXI.Renderer;
   mapOFfset: { x: number; y: number } = { x: 0, y: 0 }
   screenSize: {width: number, height: number}
@@ -28,40 +34,52 @@ export class MapRenderer implements IMapRenderer {
     container: PIXI.Container
   }> = {}
 
-  constructor(renderer: PIXI.Renderer, terrainGenerator: ITerrainGenerator, chunkSize: number, tileSize: number, screenSize: {width: number, height: number}) {
+  constructor(renderer: PIXI.Renderer, terrainGenerator: ITerrainGenerator, chunkSize: number, tileSize: number, screenSize: {width: number, height: number} ) {
     this.chunkSize = chunkSize 
     this.terrainGenerator = terrainGenerator
     this.tileSize = tileSize 
     this.renderer = renderer
     this.screenSize = screenSize
   }
+  
+  async init() {
+    this.tileSprites = {
+      plains: await PIXI.Assets.load(grassSprite),
+      ocean: await PIXI.Assets.load(waterSprite),
+      forest: await PIXI.Assets.load(forestImage),
+      snow: await PIXI.Assets.load(snowImage),
+      desert: await PIXI.Assets.load(sandImage),
+      valye: await PIXI.Assets.load(grassSprite),
+      mountain: await PIXI.Assets.load(grassSprite),
+    }
+  }
 
-  async drawChunk(x: number, y: number): Promise<void> {
-    if(this.loadedChunks[`${x},${y}`]) {
+  async drawChunk(chunkX: number, chunkY: number): Promise<void> {
+    if(this.loadedChunks[`${chunkX},${chunkY}`]) {
       return 
     }
 
     const chunkContainer = new PIXI.Container()
-    const chunkTerrain = this.terrainGenerator.generateChunk(x, y)
+    const chunkTerrain = this.terrainGenerator.generateChunk(chunkX, chunkY)
   
     for(const layer of Object.values(chunkTerrain)) {
       for(let x = 0; x < layer.types.length; x++) {
         for(let y = 0; y < layer.types[x].length; y++) {
-          const tile = new PIXI.Graphics()
-          tile.rect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize)
-          tile.fill(BIOME_COLORS[layer.types[x][y]] ?? "#FF00FF");
-
-          chunkContainer.addChild(tile)
+          const sprite = new PIXI.Sprite(this.tileSprites[layer.types[x][y]])
+       
+          sprite.x = x * this.tileSize 
+          sprite.y = y * this.tileSize 
+          chunkContainer.addChild(sprite)
         }
       }
     }
 
-    chunkContainer.x = this.chunkSize * this.tileSize * x
-    chunkContainer.y = this.chunkSize * this.tileSize * y
-    this.loadedChunks[`${x},${y}`] = {
+    chunkContainer.x = this.chunkSize * this.tileSize * chunkX
+    chunkContainer.y = this.chunkSize * this.tileSize * chunkY
+    this.loadedChunks[`${chunkX},${chunkY}`] = {
       container: chunkContainer,
-      x,
-      y
+      x: chunkX,
+      y: chunkY
     }
     this.container.addChild(chunkContainer)
   }

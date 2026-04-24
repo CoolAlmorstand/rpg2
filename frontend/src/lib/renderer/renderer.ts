@@ -43,8 +43,7 @@ export class Renderer implements IRenderer {
   }
   
   renderFrame(tick: PIXI.Ticker) {
-    this.mapRenderer.moveMap(-2, -3)  
-    this.mapRenderer.zoomMap(-0.01)
+    this.mapRenderer.moveMap(-5, -5)  
   }
 
   startRenderLoop(): void {
