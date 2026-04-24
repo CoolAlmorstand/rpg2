@@ -9,20 +9,23 @@
   let container: HTMLDivElement
   
   onMount(async() => {
-    const screenSize = {width: container.clientWidth, height: container.clientHeight}
-
-    const pixiApp = new PIXI.Application()
-
-    const terrainGenerator = new TerrainGenerator("hello", 16)
-    const mapRenderer = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 16, screenSize )
-    const renderer = new Renderer(pixiApp, mapRenderer, screenSize)
-
-    await mapRenderer.init()
-    await renderer.init(container)
-
-    renderer.renderMap()
-    renderer.mapRenderer.zoomMap(-0.2)
-    renderer.startRenderLoop() 
+    const terrainGenerator = new TerrainGenerator("hesii", 10)
+    const terrain = terrainGenerator.generateChunk(1, 3)
+    console.log(terrain)
+    // const screenSize = {width: container.clientWidth, height: container.clientHeight}
+    //
+    // const pixiApp = new PIXI.Application()
+    //
+    // const terrainGenerator = new TerrainGenerator("hello", 16)
+    // const mapRenderer = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 16, screenSize )
+    // const renderer = new Renderer(pixiApp, mapRenderer, screenSize)
+    //
+    // await mapRenderer.init()
+    // await renderer.init(container)
+    //
+    // renderer.renderMap()
+    // renderer.mapRenderer.zoomMap(-0.2)
+    // renderer.startRenderLoop() 
   })
 </script>
 

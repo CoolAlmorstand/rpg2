@@ -23,11 +23,13 @@ export function generateSimplexNoiseOfChunk(seed: string, chunkSize: number, oct
     for(let y = 0; y < chunkSize; y++) {
       let value = 0; 
       let max = 0;
+      let amp = amplitude 
+      let freq = frequency
       for (let i = 0; i < octaves; i++) {
-        value += createNoise(x * frequency * scale, y * frequency * scale) * amplitude;
+        value += createNoise(x * freq * scale, y * freq * scale) * amp;
         max += amplitude;
-        amplitude *= persistence;
-        frequency *= lacunarity;
+        amp *= persistence;
+        freq *= lacunarity;
       }
       noiseMap[x][y] = ( ( value / max ) + 1 ) / 2
     }

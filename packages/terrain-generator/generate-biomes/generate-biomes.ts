@@ -1,6 +1,6 @@
 
 import { createCellularNoiseMap } from "../utils/utils.ts";
-import type { ILayer, IBiomeTypes } from "../types/types";
+import type { IChunkBiome, IBiomeTypes } from "../types/types";
 
 function getBiomeOfNoiseVal(noise: number): IBiomeTypes {
   if(noise < 0.3) {
@@ -27,7 +27,7 @@ function getBiomeOfNoiseVal(noise: number): IBiomeTypes {
 }
 
 
-export function generateChunkBiome(seed: string, chunkSize: number, chunkX: number, chunkY: number ): ILayer<IBiomeTypes> {
+export function generateChunkBiome(seed: string, chunkSize: number, chunkX: number, chunkY: number ): IChunkBiome {
   const startingTileX = chunkX * chunkSize
   const startingTileY = chunkY * chunkSize
   const noiseMap = createCellularNoiseMap(seed, startingTileX, startingTileY, chunkSize, chunkSize, 0.02, 0.5)
