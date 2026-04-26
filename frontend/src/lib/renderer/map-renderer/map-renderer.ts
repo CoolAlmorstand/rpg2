@@ -1,11 +1,11 @@
 import type { IMapRenderer } from "$lib/interfaces/IMapRenderer";
 import type { ITerrainGenerator, IBiomeTypes } from "@terabithia/terrain-generator";
+
 import * as PIXI from "pixi.js"
-import waterSprite from "$lib/assets/water.jpg"
-import grassSprite from "$lib/assets/grass.jpg"
-import forestImage from "$lib/assets/forest.jpg"
-import sandImage from "$lib/assets/sand.jpg"
-import snowImage from "$lib/assets/snow.jpg"
+
+import type { IGroundTilesetsTextureMap } from "$lib/interfaces/ITilesetLoader";
+import type { IChunkTerrain } from "../../../../../packages/terrain-generator/types/types.ts";
+import { getBlendingEdgeTexture } from "./get-texture-of-blending-edge.ts";
 
 const BIOME_COLORS: Record<string, string> = {
   plains:   "#7EC850",
@@ -21,7 +21,7 @@ const BIOME_COLORS: Record<string, string> = {
 export class MapRenderer implements IMapRenderer {  
   chunkSize: number;
   tileSize: number; 
-  tileSprites!: Record<IBiomeTypes, PIXI.Texture>
+  groundTileSprites: IGroundTilesetsTextureMap; 
   renderer: PIXI.Renderer;
   mapOFfset: { x: number; y: number } = { x: 0, y: 0 }
   screenSize: {width: number, height: number}
@@ -34,8 +34,9 @@ export class MapRenderer implements IMapRenderer {
     container: PIXI.Container
   }> = {}
 
-  constructor(renderer: PIXI.Renderer, terrainGenerator: ITerrainGenerator, chunkSize: number, tileSize: number, screenSize: {width: number, height: number} ) {
+  constructor(renderer: PIXI.Renderer, terrainGenerator: ITerrainGenerator, groundTileSprites: IGroundTilesetsTextureMap, chunkSize: number, tileSize: number, screenSize: {width: number, height: number} ) {
     this.chunkSize = chunkSize 
+    this.groundTileSprites = groundTileSprites
     this.terrainGenerator = terrainGenerator
     this.tileSize = tileSize 
     this.renderer = renderer
@@ -43,17 +44,38 @@ export class MapRenderer implements IMapRenderer {
   }
   
   async init() {
-    this.tileSprites = {
-      plains: await PIXI.Assets.load(grassSprite),
-      ocean: await PIXI.Assets.load(waterSprite),
-      forest: await PIXI.Assets.load(forestImage),
-      snow: await PIXI.Assets.load(snowImage),
-      desert: await PIXI.Assets.load(sandImage),
-      valye: await PIXI.Assets.load(grassSprite),
-      mountain: await PIXI.Assets.load(grassSprite),
-    }
+    
   }
+  
+  private drawGroundTilesOfChunk(chunkTerrain: IChunkTerrain): PIXI.Container {
+    const {tileTypes, layersMapping, varaints, blendingEdges } = chunkTerrain.groundTiles  
+    const container = new PIXI.Container()
 
+    for(let x = 0; x < this.chunkSize; x++) {
+      for(let y = 0; y < this.chunkSize; y++) {
+        const layer = layersMapping[x][y]
+        const varaint = varaints[x][y]
+        const tileTexure = this.groundTileSprites.grass.layers[layer].variants[varaint]
+        
+        const tileSprite = new PIXI.Sprite(tileTexure)
+        tileSprite.x = x * this.tileSize 
+        tileSprite.y = y * this.tileSize
+        
+        container.addChild(tileSprite)
+        // console.log(blendingEdges)
+        //add blending edges
+        const blendingEgdeTexture = getBlendingEdgeTexture(blendingEdges[x][y], this.groundTileSprites) 
+        if(blendingEgdeTexture) {
+          const blendingEgdeSprite = new PIXI.Sprite(blendingEgdeTexture)
+          blendingEgdeSprite.x = x * this.tileSize
+          blendingEgdeSprite.y = y * this.tileSize
+          container.addChild(blendingEgdeSprite)
+        }
+      }
+    }
+    return container
+  }
+  
   async drawChunk(chunkX: number, chunkY: number): Promise<void> {
     if(this.loadedChunks[`${chunkX},${chunkY}`]) {
       return 
@@ -61,26 +83,11 @@ export class MapRenderer implements IMapRenderer {
 
     const chunkContainer = new PIXI.Container()
     const chunkTerrain = this.terrainGenerator.generateChunk(chunkX, chunkY)
-  
-    for(const layer of Object.values(chunkTerrain)) {
-      for(let x = 0; x < layer.types.length; x++) {
-        for(let y = 0; y < layer.types[x].length; y++) {
-          const sprite = new PIXI.Sprite(this.tileSprites[layer.types[x][y]])
-       
-          sprite.x = x * this.tileSize 
-          sprite.y = y * this.tileSize 
-          chunkContainer.addChild(sprite)
-        }
-      }
-    }
+    const groundTiles = this.drawGroundTilesOfChunk(chunkTerrain) 
+    chunkContainer.x = chunkX * this.chunkSize * this.chunkSize
+    chunkContainer.y = chunkY * this.chunkSize * this.chunkSize
 
-    chunkContainer.x = this.chunkSize * this.tileSize * chunkX
-    chunkContainer.y = this.chunkSize * this.tileSize * chunkY
-    this.loadedChunks[`${chunkX},${chunkY}`] = {
-      container: chunkContainer,
-      x: chunkX,
-      y: chunkY
-    }
+    chunkContainer.addChild(groundTiles)
     this.container.addChild(chunkContainer)
   }
 
@@ -97,15 +104,47 @@ export class MapRenderer implements IMapRenderer {
   }
 
   drawMap() {
+    // let x = 0 
+    // let y = 0
+    // for(const texure of Object.values(this.groundTileSprites.grass.layers[0].blendingEdges)) {
+    //   const sprite = new PIXI.Sprite(texure)
+    //   sprite.x = x 
+    //   sprite.y = y
+    //   this.container.addChild(sprite)
+    //   x += 17
+    // }
+    //
+    // x = 0 
+    // y = 16
+    //
+    // for(const texure of Object.values(this.groundTileSprites.grass.layers[1].blendingEdges)) {
+    //   const sprite = new PIXI.Sprite(texure)
+    //   sprite.x = x 
+    //   sprite.y = y
+    //   this.container.addChild(sprite)
+    //   x += 17
+    // }
+    // x = 0 
+    // y = 32
+    //
+    // for(const texure of Object.values(this.groundTileSprites.grass.layers[2].blendingEdges)) {
+    //   const sprite = new PIXI.Sprite(texure)
+    //   sprite.x = x 
+    //   sprite.y = y
+    //   this.container.addChild(sprite)
+    //   x += 17
+    // }
+
+
     const {startingX, startingY, endingX, endingY} = this.getVisibleChunks()
-    console.log({
-      startingX,
-      startingY,
-      endingY,
-      endingX
-    })
+    // console.log({
+    //   startingX,
+    //   startingY,
+    //   endingY,
+    //   endingX
+    // })
     this.unloadNotVisibleChunks(startingX, startingY, endingX, endingY )
-  
+
     for(let x = startingX; x < endingX; x++) {
       for(let y = startingY; y < endingY; y++) {
         this.drawChunk(x, y) 

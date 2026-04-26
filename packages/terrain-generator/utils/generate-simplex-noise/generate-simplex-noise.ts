@@ -15,7 +15,7 @@ type params = {
 }
 
 
-export function generateSimplexNoiseOfChunk(seed: string, chunkSize: number, octaves: number, lacunarity: number, persistence: number, amplitude: number, frequency: number, scale: number,) {
+export function generateSimplexNoiseOfChunk(seed: string, startingTileX: number, startingTileY: number, chunkSize: number, octaves: number, lacunarity: number, persistence: number, amplitude: number, frequency: number, scale: number,) {
   const createNoise = createNoise2D(alea(seed))
   const noiseMap: number[][] = Array.from({length: chunkSize}, () => [] )
 
@@ -25,9 +25,11 @@ export function generateSimplexNoiseOfChunk(seed: string, chunkSize: number, oct
       let max = 0;
       let amp = amplitude 
       let freq = frequency
+      const globaxX = startingTileX + x
+      const globaxY = startingTileY + y
       for (let i = 0; i < octaves; i++) {
-        value += createNoise(x * freq * scale, y * freq * scale) * amp;
-        max += amplitude;
+        value += createNoise(globaxX * freq * scale, globaxY * freq * scale) * amp;
+        max += amp;
         amp *= persistence;
         freq *= lacunarity;
       }

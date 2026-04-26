@@ -1,17 +1,7 @@
 import type { IMapRenderer } from "$lib/interfaces/IMapRenderer";
-import type { IMap, IRenderer } from "$lib/interfaces/IRenderer";
-import type { ITerrainGenerator } from '@terabithia/terrain-generator'
-import * as PIXI from "pixi.js"
+import type { IRenderer } from "$lib/interfaces/IRenderer";
 
-const BIOME_COLORS: Record<string, string> = {
-  plains:   "#7EC850",
-  forest:   "#2D6A2D",
-  ocean:    "#1A6FBF",
-  snow:     "#E8F0F7",
-  desert:   "#D4A84B",
-  mountain: "#8B7355",
-  valye:    "#9A9A9A",
-};
+import * as PIXI from "pixi.js"
 
 export class Renderer implements IRenderer {
   app: PIXI.Application

@@ -27,9 +27,7 @@ function getBiomeOfNoiseVal(noise: number): IBiomeTypes {
 }
 
 
-export function generateChunkBiome(seed: string, chunkSize: number, chunkX: number, chunkY: number ): IChunkBiome {
-  const startingTileX = chunkX * chunkSize
-  const startingTileY = chunkY * chunkSize
+export function generateChunkBiome(seed: string, startingTileX: number, startingTileY: number, chunkSize: number ): IChunkBiome {
   const noiseMap = createCellularNoiseMap(seed, startingTileX, startingTileY, chunkSize, chunkSize, 0.02, 0.5)
   const biomes: IBiomeTypes[][] = Array.from({length: chunkSize}, () => [])
 

@@ -3,29 +3,27 @@
   import { MapRenderer } from "$lib/renderer/map-renderer/map-renderer";
   import { Renderer } from "$lib/renderer/renderer"
   import { TerrainGenerator } from "../../../../packages/terrain-generator/index.ts" 
+  import { loadTilesets } from "$lib/renderer/tileset-loader/tileset-loader";
   import * as PIXI from "pixi.js"
   import { onMount } from "svelte";
 
   let container: HTMLDivElement
   
-  onMount(async() => {
-    const terrainGenerator = new TerrainGenerator("hesii", 10)
-    const terrain = terrainGenerator.generateChunk(1, 3)
-    console.log(terrain)
-    // const screenSize = {width: container.clientWidth, height: container.clientHeight}
-    //
-    // const pixiApp = new PIXI.Application()
-    //
-    // const terrainGenerator = new TerrainGenerator("hello", 16)
-    // const mapRenderer = new MapRenderer(pixiApp.renderer, terrainGenerator, 16, 16, screenSize )
-    // const renderer = new Renderer(pixiApp, mapRenderer, screenSize)
-    //
-    // await mapRenderer.init()
-    // await renderer.init(container)
-    //
-    // renderer.renderMap()
-    // renderer.mapRenderer.zoomMap(-0.2)
-    // renderer.startRenderLoop() 
+  onMount(async() => { 
+    const screenSize = {width: container.clientWidth, height: container.clientHeight}
+
+    const pixiApp = new PIXI.Application()
+
+    const terrainGenerator = new TerrainGenerator("hello", 16)
+    const groundTileSprites = await loadTilesets()
+    const mapRenderer = new MapRenderer(pixiApp.renderer, terrainGenerator, groundTileSprites, 16, 16, screenSize )
+    const renderer = new Renderer(pixiApp, mapRenderer, screenSize)
+
+    await mapRenderer.init()
+    await renderer.init(container)
+
+    renderer.renderMap()
+    renderer.startRenderLoop() 
   })
 </script>
 

@@ -1,25 +1,60 @@
 
 export type IBlendingEdges = {
-    n: number | null,
-    s: number | null,
-    e: number | null,
-    w: number | null,
+  n: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
 
-    ne: number | null,
-    nw: number | null,
+  s: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
 
-    sw: number | null,
-    se: number | null
+  e: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
+
+  w: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
+
+  ne: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
+
+  nw: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
+
+  sw: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null,
+
+  se: {
+    tileType: IGroundTiles,
+    variant: number,
+    layer: number
+  } | null
 }
-
 
 export type IBiomeTypes = 
   "plains" | "forest" | "ocean" |
   "snow" | "desert" | "mountain" |
   "valye"
 
-export type IPlainsGroundTiles = 
-  "grass1" | "grass2" | "grass3"
+export type IPlainsGroundTiles = "grass" 
 
 export type IGroundTiles = IPlainsGroundTiles
 
@@ -40,6 +75,7 @@ export type IChunkGroundTiles = {
   //the layer of this tile 
   layersMapping: number[][];
   blendingEdges: IBlendingEdges[][]; 
+  varaints: number[][]
   tileTypes: IPlainsGroundTiles[][]; 
 }
 
