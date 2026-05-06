@@ -14,12 +14,6 @@ export class Renderer implements IRenderer {
   }
 
   async init(container: HTMLDivElement): Promise<void> {
-    await this.app.init({
-      background: "#FF0000",
-      resizeTo: container, 
-      autoStart: false,
-    })
-
     this.app.stage.addChild(this.mapRenderer.container)
 
     this.app.ticker.maxFPS = 45
@@ -33,7 +27,7 @@ export class Renderer implements IRenderer {
   }
   
   renderFrame(tick: PIXI.Ticker) {
-    this.mapRenderer.moveMap(-5, -5)  
+    // this.mapRenderer.moveAndZoomMap(-2, -2, 0)  
   }
 
   startRenderLoop(): void {

@@ -1,10 +1,10 @@
 import type { IMapRenderer } from "$lib/interfaces/IMapRenderer";
-import type { ITerrainGenerator, IBiomeTypes } from "@terabithia/terrain-generator";
+import type { ITerrainGenerator, IBiomeTypes, IChunkGroundTiles } from "@terabithia/terrain-generator";
 
 import * as PIXI from "pixi.js"
 
 import type { IGroundTilesetsTextureMap } from "$lib/interfaces/ITilesetLoader";
-import type { IChunkTerrain } from "../../../../../packages/terrain-generator/types/types.ts";
+import type { IChunkTerrain, IGroundTilesTypes } from "../../../../../packages/terrain-generator/types/types.ts";
 import { getBlendingEdgeTexture } from "./get-texture-of-blending-edge.ts";
 
 const BIOME_COLORS: Record<string, string> = {
@@ -31,7 +31,7 @@ export class MapRenderer implements IMapRenderer {
   private loadedChunks: Record<string, {
     x: number;
     y: number;
-    container: PIXI.Container
+    sprite: PIXI.Sprite
   }> = {}
 
   constructor(renderer: PIXI.Renderer, terrainGenerator: ITerrainGenerator, groundTileSprites: IGroundTilesetsTextureMap, chunkSize: number, tileSize: number, screenSize: {width: number, height: number} ) {
@@ -47,32 +47,48 @@ export class MapRenderer implements IMapRenderer {
     
   }
   
-  private drawGroundTilesOfChunk(chunkTerrain: IChunkTerrain): PIXI.Container {
-    const {tileTypes, layersMapping, varaints, blendingEdges } = chunkTerrain.groundTiles  
-    const container = new PIXI.Container()
+  private getTextureOfGroundTile(x: number, y: number, tileType: IGroundTilesTypes, groundTiles: IChunkGroundTiles ): PIXI.Texture {
 
-    for(let x = 0; x < this.chunkSize; x++) {
-      for(let y = 0; y < this.chunkSize; y++) {
-        const layer = layersMapping[x][y]
-        const varaint = varaints[x][y]
-        const tileTexure = this.groundTileSprites.grass.layers[layer].variants[varaint]
-        
-        const tileSprite = new PIXI.Sprite(tileTexure)
-        tileSprite.x = x * this.tileSize 
-        tileSprite.y = y * this.tileSize
-        
-        container.addChild(tileSprite)
-        // console.log(blendingEdges)
-        //add blending edges
-        const blendingEgdeTexture = getBlendingEdgeTexture(blendingEdges[x][y], this.groundTileSprites) 
-        if(blendingEgdeTexture) {
-          const blendingEgdeSprite = new PIXI.Sprite(blendingEgdeTexture)
-          blendingEgdeSprite.x = x * this.tileSize
-          blendingEgdeSprite.y = y * this.tileSize
-          container.addChild(blendingEgdeSprite)
+    const topLeftTile = groundTiles[tileType][Math.max(0, x - 1)][Math.max(0, y - 1)]
+    const topRightTile = groundTiles[tileType][x][Math.max(0, y - 1)]
+    const bottomLeftTile = groundTiles[tileType][Math.max(0, x - 1)][y]
+    const bottomRightTile = groundTiles[tileType][x][y]
+
+    if(topLeftTile  )
+  }
+
+  private drawGroundTilesOfChunk(chunkTerrain: IChunkTerrain): PIXI.Container {
+    const groundTiles = chunkTerrain.groundTiles  
+    const container = new PIXI.Container()
+    
+    for(const [tileType, tiles] of Object.entries(groundTiles)) {
+      for(let x = 0; x < this.chunkSize; x++) {
+        for(let y = 0; y < this.chunkSize; y++) {
+          const tile = tiles[x][y]
+          if(!tiles[x][y]) {
+            continue
+          }
+          const tileTexure = this.getTextureOfGroundTile(x, y, groundTiles) 
+
+          const tileSprite = new PIXI.Sprite(tileTexure)
+          tileSprite.x = x * this.tileSize 
+          tileSprite.y = y * this.tileSize
+          
+          container.addChild(tileSprite)
+          // console.log(blendingEdges)
+          //add blending edges
+          
+          const blendingEgdeTexture = getBlendingEdgeTexture(tileType, blendingEdges[x][y], this.groundTileSprites) 
+          if(blendingEgdeTexture) {
+            const blendingEgdeSprite = new PIXI.Sprite(blendingEgdeTexture)
+            blendingEgdeSprite.x = x * this.tileSize
+            blendingEgdeSprite.y = y * this.tileSize
+            container.addChild(blendingEgdeSprite)
+          }
         }
       }
     }
+ 
     return container
   }
   
@@ -81,32 +97,52 @@ export class MapRenderer implements IMapRenderer {
       return 
     }
 
-    const chunkContainer = new PIXI.Container()
     const chunkTerrain = this.terrainGenerator.generateChunk(chunkX, chunkY)
+    console.log(chunkTerrain)
+    const chunkContainer = new PIXI.Container()
+    
     const groundTiles = this.drawGroundTilesOfChunk(chunkTerrain) 
-    chunkContainer.x = chunkX * this.chunkSize * this.chunkSize
-    chunkContainer.y = chunkY * this.chunkSize * this.chunkSize
-
     chunkContainer.addChild(groundTiles)
-    this.container.addChild(chunkContainer)
+
+    const chunkTexture = PIXI.RenderTexture.create({
+      width: this.chunkSize * this.tileSize,
+      height: this.chunkSize * this.tileSize,
+      scaleMode: "nearest",
+      autoGenerateMipmaps: false,
+    })
+
+    this.renderer.render({
+      target: chunkTexture,
+      container: chunkContainer,
+      clear: true
+    })
+
+    const chunkSpirte = new PIXI.Sprite(chunkTexture)
+    chunkSpirte.x = this.chunkSize * this.tileSize * chunkX 
+    chunkSpirte.y = this.chunkSize * this.tileSize * chunkY 
+    
+    this.loadedChunks[`${chunkX},${chunkY}`] = {
+      x: chunkX,
+      y: chunkY,
+      sprite: chunkSpirte
+    }
+    this.container.addChild(chunkSpirte)
   }
 
-  moveMap(x: number, y: number): void {
+  moveAndZoomMap(x: number, y: number, zoom: number): void {
     this.container.x += x     
     this.container.y += y 
-    this.drawMap()
-  }
-  
-  zoomMap(zoom: number): void {
+
     const previousScale = this.container.scale.x
     this.container.scale.set(previousScale + zoom, previousScale + zoom) 
-    this.drawMap() 
-  }
+    this.drawMap()
 
+  }
+  
   drawMap() {
     // let x = 0 
     // let y = 0
-    // for(const texure of Object.values(this.groundTileSprites.grass.layers[0].blendingEdges)) {
+    // for(const texure of Object.values(this.groundTileSprites.grass.blendingEdges)) {
     //   const sprite = new PIXI.Sprite(texure)
     //   sprite.x = x 
     //   sprite.y = y
@@ -117,7 +153,7 @@ export class MapRenderer implements IMapRenderer {
     // x = 0 
     // y = 16
     //
-    // for(const texure of Object.values(this.groundTileSprites.grass.layers[1].blendingEdges)) {
+    // for(const texure of Object.values(this.groundTileSprites["grass-dark"].blendingEdges)) {
     //   const sprite = new PIXI.Sprite(texure)
     //   sprite.x = x 
     //   sprite.y = y
@@ -127,13 +163,17 @@ export class MapRenderer implements IMapRenderer {
     // x = 0 
     // y = 32
     //
-    // for(const texure of Object.values(this.groundTileSprites.grass.layers[2].blendingEdges)) {
+    // for(const texure of Object.values(this.groundTileSprites["grass-light"].blendingEdges)) {
     //   const sprite = new PIXI.Sprite(texure)
     //   sprite.x = x 
     //   sprite.y = y
     //   this.container.addChild(sprite)
     //   x += 17
     // }
+    //
+    // this.container.scale.set(2,2)
+    // this.container.y = 100
+    // this.container.x = -70
 
 
     const {startingX, startingY, endingX, endingY} = this.getVisibleChunks()
@@ -155,11 +195,11 @@ export class MapRenderer implements IMapRenderer {
   private unloadNotVisibleChunks(startingX: number, startingY: number, endingX: number, endingY: number) {
     for(const loadedChunk of Object.values(this.loadedChunks) ) { 
       if(loadedChunk.x < startingX || loadedChunk.x > endingX) {
-        this.container.removeChild(loadedChunk.container)
+        this.container.removeChild(loadedChunk.sprite)
         delete this.loadedChunks[`${loadedChunk.x},${loadedChunk.y}`]
       }
       else if(loadedChunk.y < startingY || loadedChunk.y > endingY) {
-        this.container.removeChild(loadedChunk.container)
+        this.container.removeChild(loadedChunk.sprite)
         delete this.loadedChunks[`${loadedChunk.x},${loadedChunk.y}`]
       }
     }

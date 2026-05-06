@@ -7,6 +7,5 @@ export interface IMapRenderer {
 
   drawChunk(x: number, y: number): Promise<void>
   drawMap(): void;
-  moveMap(x: number, y: number): void
-  zoomMap(zoom: number): void;
+  moveAndZoomMap(x: number, y: number, zoom: number): void
 }

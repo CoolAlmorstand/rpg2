@@ -1,67 +1,17 @@
-
-export type IBlendingEdges = {
-  n: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  s: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  e: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  w: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  ne: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  nw: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  sw: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null,
-
-  se: {
-    tileType: IGroundTiles,
-    variant: number,
-    layer: number
-  } | null
-}
-
 export type IBiomeTypes = 
   "plains" | "forest" | "ocean" |
   "snow" | "desert" | "mountain" |
   "valye"
 
-export type IPlainsGroundTiles = "grass" 
+export type IPlainsGroundTilesTypes = 
+  "grass" | "grass-dark" | "grass-light" |
+  "dirt"
 
-export type IGroundTiles = IPlainsGroundTiles
+export type IDesertGroundTilesTypes = 
+  "sand" | "red-sand"
 
-export type ILayer<T> = {
-  noiseMap: number[][]
-  types: T[][]
-}
+export type IGroundTilesTypes = 
+  IPlainsGroundTilesTypes | IDesertGroundTilesTypes
 
 
 export type IChunkBiome = {
@@ -70,14 +20,13 @@ export type IChunkBiome = {
 }
 
 
-export type IChunkGroundTiles = {
-  noiseMap: number[][];
-  //the layer of this tile 
-  layersMapping: number[][];
-  blendingEdges: IBlendingEdges[][]; 
-  varaints: number[][]
-  tileTypes: IPlainsGroundTiles[][]; 
-}
+// each tileType is layer and could iether be tile or just null
+
+export type IGroundTile = {
+  variant: number,
+} | null
+
+export type IChunkGroundTiles = Record<IGroundTilesTypes, IGroundTile[][]>
 
 
 export type IChunkTerrain = {
@@ -85,4 +34,3 @@ export type IChunkTerrain = {
   groundTiles: IChunkGroundTiles
 }
 
-export type ITerrainMap = Record<string, ILayer<IBiomeTypes>>
