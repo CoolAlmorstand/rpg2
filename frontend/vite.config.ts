@@ -6,5 +6,18 @@ export default defineConfig({
   plugins: [
     tailwindcss(), 
     sveltekit()
-  ] 
+  ],
+  server: {
+    watch: {
+      usePolling: true,
+      ignored: ["!**/node_modules/@terabithia/**"]
+    }
+  },
+  optimizeDeps: {
+    exclude: [
+      "@terabithia/shared-types",
+      "@terabithia/terrain-generator",
+    ],
+    force: true
+  }
 });

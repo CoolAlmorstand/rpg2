@@ -1,6 +1,6 @@
 
 import { createClient, PostgrestError } from "@supabase/supabase-js"
-import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult, IDBGetRoomFromIdResult } from "../interfaces/IDBManager"
+import { IDBManager, IDBRoomRow, IDBRoomMemberRow, IDBGetRoomOfUserResponse, IDBIsUserAMemberOfRoomResult, IDBCreateNewRoomData, IDBCreateNewRoomResult, IDBJoinUserToRoomResult, IDBGetRoomFromIdResult, IDBGetMembersOfRoomResult } from "../interfaces/IDBManager"
 import { IMapPreview, IMapInfo, IApiUserCreateAccountRequest, IApiUserCreateAccountResponse } from "@terabithia/shared-types"
 
 
@@ -44,6 +44,46 @@ export class SupabaseManager implements IDBManager {
     return availableMaps 
   }
   
+  async isUserAMemberOfRoom(userId: string, roomId: string): Promise<IDBIsUserAMemberOfRoomResult> {
+    const {data, error} = await this.supabase.from("room_members").select<"user_id", {user_id: string}>("user_id").eq("user_id", userId).eq("room_id", roomId).single() 
+    if(error) {
+      return {success: false, error: {reason: error.message}}
+    }
+    return {success: true}
+  }
+
+  async getMembersOfRoom(roomId: string): Promise<IDBGetMembersOfRoomResult> {
+    const {data, error} = await this.supabase.from("room_members").select<"user_id", { user_id: string } >("user_id").eq("room_id", roomId)
+    
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
+      }
+    }
+
+    const memberUsersArray = await Promise.all(
+      data.map(async ( {user_id} ) => {
+        const {data: userData} = await this.supabase.auth.admin.getUserById(user_id)
+        return userData.user
+      })
+    )
+
+    const members = {}
+    for(const member of memberUsersArray ) {
+      if(!member) { continue }
+      members[member.id] = {
+        username: member.user_metadata.username,
+        id: member.id
+      }
+    }
+
+    return {
+      success: true,
+      members 
+    } 
+  }
+
   async getUserFromToken(token: string): Promise<string | undefined> {
     const { data } = await this.supabase.auth.getUser(token) 
     return data.user?.id 

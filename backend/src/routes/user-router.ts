@@ -21,14 +21,14 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
     res.cookie("access-token", result.accessToken, {
       httpOnly: true,       
       secure: process.env.NODE_ENV === "production",     
-      sameSite: process.env.NODE_ENV == "production" ? "none" : "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 60 * 60 * 1000 
     })
 
     res.cookie("refresh-token", result.refreshToken, {
       httpOnly: true,       
-      secure: process.env.NODE_ENV === "production",     
-      sameSite: process.env.NODE_ENV == "production" ? "none" : "strict", 
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000 
     })
 
@@ -37,8 +37,21 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
 
   router.post("/create-account", express.json(), async (req, res) => {
     const accountDetails: IApiUserCreateAccountRequest = req.body 
-    const response: IUserCreateAccountResponse = await userManager.createNewAccount(accountDetails)
-    res.json(response)
+    const createAccountResult: IUserCreateAccountResponse = await userManager.createNewAccount(accountDetails)
+    
+    if(createAccountResult.success) {
+      const response: IApiUserCreateAccountResponse = {
+        success: true
+      } 
+      res.send(response)
+    }
+    else {
+      const response: IApiUserCreateAccountResponse = {
+        success: false,
+        error: createAccountResult.error 
+      } 
+      res.send(response)
+    } 
   })
   
   router.post("/login-account", express.json(), async (req, res) => {
@@ -47,16 +60,16 @@ export function initializeUserRoutes(userManager: IUserManager, authHandler: IAu
 
     if(loginResult.success) {
       res.cookie("access-token", loginResult.accessToken, {
-        httpOnly: true,       
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         secure: process.env.NODE_ENV === "production",     
-        sameSite: process.env.NODE_ENV == "production" ? "none" : "strict", 
         maxAge: 60 * 60 * 1000 
       })
 
       res.cookie("refresh-token", loginResult.refreshToken, {
         httpOnly: true,       
         secure: process.env.NODE_ENV === "production",     
-        sameSite: process.env.NODE_ENV == "production" ? "none" : "strict", 
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 60 * 60 * 1000 
       })
 

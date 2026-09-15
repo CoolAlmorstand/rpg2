@@ -57,11 +57,37 @@ export type IDBGetRoomFromIdResult = {
   error: {reason: string};
 }
 
+export type IDBGetMembersOfRoomResult = {
+  success: true;
+  members: Record<string, {id: string, username: string}>;
+} | {
+  success: false;
+  error: {reason: string};
+}
+
+
+export type IDBIsUserAMemberOfRoomResult = {
+  success: true;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
+export type IDBSaveRoomSessionChatsResult = {
+  success: true;
+} | {
+  success: false;
+  error: {reason: string}
+}
+
 export interface IDBManager {
+  saveRoomSessionChats(roomId: string, message: string, sender: {username: string, id: string}): Promise<IDBSaveRoomSessionChatsResult>;
+  isUserAMemberOfRoom(userId: string, roomId: string): Promise<IDBIsUserAMemberOfRoomResult>;
   getAvailableMaps(): Promise<IMapPreview[]>; 
   createNewAccount(accountDetails: IApiUserCreateAccountRequest): Promise<IApiUserCreateAccountResponse>;
   createNewRoom(roomData: IDBCreateNewRoomData): Promise<IDBCreateNewRoomResult>
   getRoomFromId(roomId: string): Promise<IDBGetRoomFromIdResult>
+  getMembersOfRoom(roomId: string): Promise<IDBGetMembersOfRoomResult>
   getUserFromToken(token: string): Promise<string | undefined>
   getRoomsOfUser(userId: string): Promise<IDBGetRoomOfUserResponse> 
   joinUserToRoom(userId: string, roomId: string): Promise<IDBJoinUserToRoomResult>

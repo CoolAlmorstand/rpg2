@@ -1,6 +1,6 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
+import type { IAuthHandler, IAuthUserLoginRequest, IAuthUserLoginResponse, IAuthValidateTokenResult, IAuthRefreshTokenResult } from "../interfaces/auth/IAuthHandler";
 import type { ISessionToken } from "../interfaces/auth/ISessionToken.ts";
 
 import { SessionToken } from "./session-token.ts"
@@ -14,7 +14,7 @@ export class SupabaseAuthHandler implements IAuthHandler {
     this.supabase = supabase
   }
   
-  async refreshToken(token: string): Promise<IRefreshTokenResult> {
+  async refreshToken(token: string): Promise<IAuthRefreshTokenResult> {
     const { data, error } = await this.supabase.auth.refreshSession({ refresh_token: token })
     if(error) {
      return {
@@ -37,26 +37,29 @@ export class SupabaseAuthHandler implements IAuthHandler {
     }
   } 
  
-  async validateToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-    const token = req.cookies["access-token"]
+  async validateToken(token: string): Promise<IAuthValidateTokenResult> { 
 
     if(!token) {
-      res.status(401).send("invalid-access-token")
-      return
+      return {
+        success: false,
+        error: {reason: "token is empty"}
+      }
     }
 
     const { data, error} = await this.supabase.auth.getUser(token)
-    if(error) { 
-      res.status(401).send("invalid-access-token")
-    }
-    else {
-      req.user = {
-        id: data.user!.id,
-        username: data.user!.user_metadata.username
+    if(error) {
+      return {
+        success: false,
+        error: {reason: error.message}
       }
-      next()
     }
-  } 
+
+    return {
+      success: true,
+      userId: data.user!.id,
+      username: data.user!.user_metadata.username
+    }
+  }
 
   async userLogin(credentials: IAuthUserLoginRequest): Promise<IAuthUserLoginResponse> {
     const {data, error} = await this.supabase.auth.signInWithPassword({
